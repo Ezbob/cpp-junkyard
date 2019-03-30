@@ -8,6 +8,9 @@ extern "C" {
 #include "lauxlib.h"
 }
 
+#include <iostream>
+#include <functional>
+
 const int STACK_TOP = -1;
 
 /*
@@ -35,7 +38,7 @@ public:
     bool checkError(int return_code) {
         if (return_code != LUA_OK) {
             std::string errormsg = lua_tostring(m_state, -1);
-            std::cerr << errormsg << std::endl;
+            std::cout << errormsg << std::endl;
             return false;
         }
         return true;
@@ -107,6 +110,22 @@ public:
 
     void pop(int number_of_elements = 1) {
         lua_pop(m_state, number_of_elements);
+    }
+
+    int stackSize() {
+        return lua_gettop(m_state);
+    }
+
+    void clearStack() {
+        lua_pop(m_state, lua_gettop(m_state));
+    }
+
+    void registerFunction(std::string functionName, int (*function)(lua_State *)) {
+        lua_register(m_state, functionName.c_str(), function);
+    }
+
+    void registerFunction(const char *functionName, int (*function)(lua_State *)) {
+        lua_register(m_state, functionName, function);
     }
 
 private:

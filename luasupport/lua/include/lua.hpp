@@ -52,6 +52,14 @@ public:
         lua_getglobal(m_state, name);
     }
 
+    void addGlobal(const std::string name) {
+        lua_setglobal(m_state, name.c_str());
+    }
+
+    void addGlobal(const char *name) {
+        lua_setglobal(m_state, name);
+    }
+
     void push(double val) {
         lua_pushnumber(m_state, val);
     }
@@ -72,8 +80,40 @@ public:
         lua_pushstring(m_state, val.c_str());
     }
 
+    void push(int (*function)(lua_State *)) {
+        lua_pushcfunction(m_state, function);
+    }
+
+    void push(void) {
+        lua_pushnil(m_state);
+    }
+
+    void pushCopyOf(int index) {
+        lua_pushvalue(m_state, index);
+    }
+
     bool hasNumber(int index = STACK_TOP) {
         return lua_isnumber(m_state, index);
+    }
+
+    int openTable() {
+        lua_newtable(m_state);
+        int tableref = lua_gettop(m_state);
+        return tableref;
+    }
+
+    template<typename T>
+    void addTableMember(int tableIndex, const std::string name, T value) {
+        push(name);
+        push(value);
+        lua_settable(m_state, tableIndex);
+    }
+
+    template<typename T>
+    void addTableMember(int tableIndex, const char *name, T value) {
+        push(name);
+        push(value);
+        lua_settable(m_state, tableIndex);
     }
 
     double getNumber(int index = STACK_TOP) {
@@ -128,6 +168,11 @@ public:
         lua_register(m_state, functionName, function);
     }
 
+    bool callFunction(int numberOfInputArgs, int numberOfReturnValues, int errorHandlerIndex = 0) {
+        return checkError(lua_pcall(m_state, numberOfInputArgs, numberOfReturnValues, errorHandlerIndex));
+    }
+
 private:
     lua_State *m_state;
 };
+

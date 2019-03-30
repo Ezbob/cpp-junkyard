@@ -4,6 +4,9 @@ Player = {
     Level = 40
 }
 
+print(super.answer)
+print(super.f(1, 2))
+
 function AddStuff(a, b)
     print("ADDSTUFF")
     return a * b + 2

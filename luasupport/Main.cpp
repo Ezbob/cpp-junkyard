@@ -27,6 +27,20 @@ int lua_HostFunction(lua_State * L) {
     return 1;
 }
 
+int lua_ATableFunction(lua_State * L) {
+    if ( lua_gettop(L) < 2 ) {
+        std::cerr << "Error: Not enough arguments provided to HostFunction. "
+        "Expected 2 got " << lua_gettop(L) << "." << std::endl;
+        lua_pushnil(L);
+        return 1;
+    }
+
+    double a = (double)lua_tonumber(L, 1);
+    double b = (double)lua_tonumber(L, 2);
+    lua_pushnumber(L, a + b + 10);
+    return 1;
+}
+
 int main(int argc, char **argv) {
 
     if ( argc < 2 ) {
@@ -44,6 +58,11 @@ int main(int argc, char **argv) {
 
     L.registerFunction("HostFunction", lua_HostFunction);
 
+    int tableref = L.openTable();
+    L.addTableMember(tableref, "answer", 42);
+    L.addTableMember(tableref, "f", lua_ATableFunction);
+    L.addGlobal("super");
+
     if ( L.checkError(luaL_dofile(L, filename)) ) {
 
         L.requestGlobal("AddStuff");
@@ -53,7 +72,7 @@ int main(int argc, char **argv) {
             L.push(32);
             L.push(20);
 
-            if (L.checkError(lua_pcall(L, 2, 1, 0))) {
+            if ( L.callFunction(2, 1) ) {
                 std::cout << "Got result from lua: " << L.getNumber() << std::endl;
             }
 
@@ -74,8 +93,9 @@ int main(int argc, char **argv) {
            L.clearStack();
         }
 
+        L.requestGlobal("Player");
 
-         /*
+        if (L.hasTable()) {
             L.push("Name");
             L.requestFromTable();
             if ( L.hasString() ) {
@@ -106,7 +126,8 @@ int main(int argc, char **argv) {
                 ")" << 
                 std::endl;
 
-            */
+            L.clearStack();
+        }
     }
 
     return 0;

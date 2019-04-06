@@ -2,10 +2,21 @@
 #include <string>
 #include "lua.hpp"
 
-struct Player {
+struct Player : public LuaTableConverter {
     std::string title;
     std::string name;
-    int level;
+    const char *stuff;
+    long level;
+    LuaTableFunction<> fun;
+
+    void LuaTableMappings() {
+        map(title, "Title");
+        map(name, "Name");
+        map(level, "Level");
+        required_map(stuff, "Stuff");
+        required_map(fun, "Fun");
+    }
+
 };
 
 int lua_HostFunction(lua_State * L) {
@@ -93,6 +104,17 @@ int main(int argc, char **argv) {
            L.clearStack();
         }
 
+        if ( player.readFromGlobal(L, "Player") ) {
+            std::cout << player.name << ", " <<  player.title << ", (level " << player.level << ")" << std::endl;
+            std::cout << "Stuff " << player.stuff;
+
+            player.fun();
+
+        } else {
+            std::cout << "Not read" << std::endl;
+        }
+        
+/*
         L.requestGlobal("Player");
 
         if (L.hasTable()) {
@@ -128,6 +150,7 @@ int main(int argc, char **argv) {
 
             L.clearStack();
         }
+*/
     }
 
     return 0;

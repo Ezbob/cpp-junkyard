@@ -10,8 +10,19 @@ extern "C" {
 
 #include <iostream>
 #include <functional>
+#include <cstddef>
+#include <array>
 
 const int STACK_TOP = -1;
+
+bool LuaCheckError(lua_State *s, int return_code) {
+    if (return_code != LUA_OK) {
+        std::string errormsg = lua_tostring(s, -1);
+        std::cout << errormsg << std::endl;
+        return false;
+    }
+    return true;
+}
 
 /*
  * RAII for a lua state
@@ -176,3 +187,205 @@ private:
     lua_State *m_state;
 };
 
+struct LuaFunctionArg {
+    enum {
+        STRING,
+        INT,
+        DOUBLE,
+        BOOL
+    } type;
+    union {
+        char *strval;
+        int intval;
+        double doubleval;
+        bool boolval;
+    };
+
+    void pushToStack(lua_State *L) {
+        switch(type) {
+            case LuaFunctionArg::STRING:
+                lua_pushstring(L, strval);
+                break;
+            case LuaFunctionArg::INT:
+                lua_pushinteger(L, intval);
+                break;
+            case LuaFunctionArg::DOUBLE:
+                lua_pushnumber(L, doubleval);
+                break;
+            case LuaFunctionArg::BOOL:
+                lua_pushboolean(L, boolval);
+                break;
+        }
+    }
+};
+
+
+template<int nInputArgs = 0, int nOutputArgs = 0, int faultHandlerIndex = 0>
+class LuaTableFunction {
+
+public:
+    bool operator() (std::array<LuaFunctionArg, nInputArgs> *inputArgs = nullptr, std::function<void (lua_State *)> *outputExtractor = nullptr) {
+        lua_pushstring(m_state, m_name);
+        lua_gettable(m_state, (STACK_TOP - 1));
+        if ( lua_isfunction(m_state, STACK_TOP) ) {
+
+            if ( inputArgs != nullptr ) {
+                for (auto l : (*inputArgs)) {
+                    l.pushToStack(m_state);
+                }
+            }
+
+            if ( LuaCheckError(m_state, lua_pcall(m_state, m_input, m_output, m_faultHandler_index)) ) {
+                if ( outputExtractor != nullptr ) {
+                    (*outputExtractor)(m_state);
+                }
+            } else {
+                lua_pop(m_state, 1);
+                return false;
+            }
+        } else {
+            lua_pop(m_state, 1);
+            return false;
+        }
+        lua_pop(m_state, 1);
+        return true;
+    }
+
+    void setMembers(lua_State *s, const char *name, const char *table_name) {
+        m_state = s;
+        m_name = name;
+        m_table_name = table_name;
+    }
+
+private:
+    int m_input = nInputArgs;
+    int m_output = nOutputArgs;
+    int m_faultHandler_index = faultHandlerIndex;
+    const char *m_name;
+    const char *m_table_name;
+    lua_State *m_state;
+};
+
+class LuaTableConverter {
+
+private:
+    lua_State *m_state;
+    int m_table_index = (STACK_TOP - 1);
+    const char *m_table_name = "";
+
+public:
+    bool readFromGlobal(lua_State *luaState, const char *tableName) {
+        m_table_name = tableName;
+        m_state = luaState;
+
+        lua_getglobal(m_state, m_table_name);
+        if ( lua_istable(m_state, STACK_TOP) ) {
+            LuaTableMappings();
+            return true;
+        }
+        return false;
+    }
+
+    explicit LuaTableConverter() = default;
+
+protected:
+    virtual void LuaTableMappings() {}
+
+    void map(std::string &s, const char *luaName) {
+
+        lua_pushstring(m_state, luaName);
+        lua_gettable(m_state, (STACK_TOP - 1));
+
+        if ( lua_isstring(m_state, STACK_TOP) ) {
+            s = lua_tostring(m_state, STACK_TOP);
+        }
+
+        lua_pop(m_state, 1);
+    }
+
+    void map(const char *&s, const char *luaName) {
+
+        lua_pushstring(m_state, luaName);
+        lua_gettable(m_state, (STACK_TOP - 1));
+
+        if ( lua_isstring(m_state, STACK_TOP) ) {
+            s = lua_tostring(m_state, STACK_TOP);
+        }
+
+        lua_pop(m_state, 1);
+    }
+
+    template<typename T>
+    void map(T &s, const char *luaName) {
+
+        lua_pushstring(m_state, luaName);
+        lua_gettable(m_state, (STACK_TOP - 1));
+
+        if ( lua_isnumber(m_state, STACK_TOP) ) {
+            s = lua_tonumber(m_state, STACK_TOP);
+        }
+
+        lua_pop(m_state, 1);
+    }
+
+    void required_map(std::string &s, const char *luaName) {
+
+        lua_pushstring(m_state, luaName);
+        lua_gettable(m_state, (STACK_TOP - 1));
+
+        if ( lua_isstring(m_state, STACK_TOP) ) {
+            s = lua_tostring(m_state, STACK_TOP);
+            lua_pop(m_state, 1);
+        } else {
+            lua_pop(m_state, 1);
+            throw std::out_of_range(luaName);
+        }
+    }
+
+    void required_map(const char *&s, const char *luaName) {
+
+        lua_pushstring(m_state, luaName);
+        lua_gettable(m_state, (STACK_TOP - 1));
+
+        if ( lua_isstring(m_state, STACK_TOP) ) {
+            s = lua_tostring(m_state, STACK_TOP);
+            lua_pop(m_state, 1);
+        } else {
+            lua_pop(m_state, 1);
+            throw std::out_of_range(luaName);
+        }
+
+    }
+
+    template<typename T>
+    void required_map(T &s, const char *luaName) {
+
+        lua_pushstring(m_state, luaName);
+        lua_gettable(m_state, (STACK_TOP - 1));
+
+        if ( lua_isnumber(m_state, STACK_TOP) ) {
+            s = lua_tonumber(m_state, STACK_TOP);
+            lua_pop(m_state, 1);
+        } else {
+            lua_pop(m_state, 1);
+            throw std::out_of_range(luaName);
+        }
+    }
+
+    template<int inputArgs, int outputArgs>
+    void required_map(LuaTableFunction<inputArgs, outputArgs> &s, const char *luaName) {
+
+        lua_pushstring(m_state, luaName);
+        lua_gettable(m_state, (STACK_TOP - 1));
+
+        if ( lua_isfunction(m_state, STACK_TOP) ) {
+            s.setMembers(m_state, luaName, m_table_name);
+            lua_pop(m_state, 1);
+        } else {
+            lua_pop(m_state, 1);
+            throw std::out_of_range(luaName);
+        }
+    }
+
+
+};

@@ -1,7 +1,11 @@
 Player = {
     Name = "Xexus",
     Title = "Duke of Cubines",
-    Level = 40
+    Level = 40,
+    Stuff = "Hello",
+    Fun = function()
+        print("Hello")
+    end
 }
 
 print(super.answer)
@@ -14,6 +18,5 @@ end
 
 function DoAThing(a, b)
     print("Do a thing")
-    c = HostFunction(a + 10, b + 15)
-    return c
+    return HostFunction(a + 10, b + 15)
 end

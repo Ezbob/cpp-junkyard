@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
                 << player.stuff
                 << std::endl;
 
-            std::array<LuaFunctionArg, player.fun.getInputNArgs()> args = {{
+            LuaFunctionInputArgs<player.fun.getInputNArgs()> inputArgs = {{
                 LuaFunctionArg(42)
             }};
 
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
                 if ( lua_isinteger(s, STACK_TOP) ) {
                     std::cout << lua_tointeger(s, STACK_TOP) << std::endl;
                 }
-            }, &args);
+            }, &inputArgs);
 
         } else {
             std::cout << "Not read" << std::endl;

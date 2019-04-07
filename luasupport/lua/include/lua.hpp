@@ -288,6 +288,9 @@ private:
     lua_State *m_state;
 };
 
+template<int nArgs>
+using LuaFunctionInputArgs = std::array<LuaFunctionArg, nArgs>; 
+
 const auto VoidExtractor = [](lua_State *s){ (void) s; };
 
 class LuaTableConverter {

@@ -7,7 +7,7 @@ struct Player : public LuaTableConverter {
     std::string name;
     const char *stuff;
     long level;
-    LuaTableFunction<> fun;
+    LuaTableFunction<1, 1> fun;
 
     void LuaTableMappings() {
         map(title, "Title");
@@ -105,10 +105,22 @@ int main(int argc, char **argv) {
         }
 
         if ( player.readFromGlobal(L, "Player") ) {
-            std::cout << player.name << ", " <<  player.title << ", (level " << player.level << ")" << std::endl;
-            std::cout << "Stuff " << player.stuff;
+            std::cout
+                << player.name << ", "
+                << player.title << ", (level "
+                << player.level << ") Stuff "
+                << player.stuff
+                << std::endl;
 
-            player.fun();
+            std::array<LuaFunctionArg, player.fun.getInputNArgs()> args = {{
+                LuaFunctionArg(42)
+            }};
+
+            player.fun([](lua_State *s) {
+                if ( lua_isinteger(s, STACK_TOP) ) {
+                    std::cout << lua_tointeger(s, STACK_TOP) << std::endl;
+                }
+            }, &args);
 
         } else {
             std::cout << "Not read" << std::endl;

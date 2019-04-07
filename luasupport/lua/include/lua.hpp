@@ -195,25 +195,41 @@ struct LuaFunctionArg {
         BOOL
     } type;
     union {
-        char *strval;
+        const char *strval;
         int intval;
         double doubleval;
         bool boolval;
-    };
+    } value;
+
+    LuaFunctionArg(const char *str) : type(STRING) {
+        value.strval = str;
+    }
+
+    LuaFunctionArg(int intval) : type(INT) {
+        value.intval = intval;
+    }
+
+    LuaFunctionArg(double dval) : type(DOUBLE) {
+        value.doubleval = dval;
+    }
+
+    LuaFunctionArg(bool bval) : type(BOOL) {
+        value.boolval = bval;
+    }
 
     void pushToStack(lua_State *L) {
         switch(type) {
             case LuaFunctionArg::STRING:
-                lua_pushstring(L, strval);
+                lua_pushstring(L, value.strval);
                 break;
             case LuaFunctionArg::INT:
-                lua_pushinteger(L, intval);
+                lua_pushinteger(L, value.intval);
                 break;
             case LuaFunctionArg::DOUBLE:
-                lua_pushnumber(L, doubleval);
+                lua_pushnumber(L, value.doubleval);
                 break;
             case LuaFunctionArg::BOOL:
-                lua_pushboolean(L, boolval);
+                lua_pushboolean(L, value.boolval);
                 break;
         }
     }
@@ -224,7 +240,7 @@ template<int nInputArgs = 0, int nOutputArgs = 0, int faultHandlerIndex = 0>
 class LuaTableFunction {
 
 public:
-    bool operator() (std::array<LuaFunctionArg, nInputArgs> *inputArgs = nullptr, std::function<void (lua_State *)> *outputExtractor = nullptr) {
+    bool operator() (std::function<void (lua_State *)> outputExtractor, std::array<LuaFunctionArg, nInputArgs> *inputArgs = nullptr) {
         lua_pushstring(m_state, m_name);
         lua_gettable(m_state, (STACK_TOP - 1));
         if ( lua_isfunction(m_state, STACK_TOP) ) {
@@ -236,9 +252,7 @@ public:
             }
 
             if ( LuaCheckError(m_state, lua_pcall(m_state, m_input, m_output, m_faultHandler_index)) ) {
-                if ( outputExtractor != nullptr ) {
-                    (*outputExtractor)(m_state);
-                }
+                outputExtractor(m_state);
             } else {
                 lua_pop(m_state, 1);
                 return false;
@@ -247,7 +261,7 @@ public:
             lua_pop(m_state, 1);
             return false;
         }
-        lua_pop(m_state, 1);
+        lua_pop(m_state, m_output + 1);
         return true;
     }
 
@@ -255,6 +269,14 @@ public:
         m_state = s;
         m_name = name;
         m_table_name = table_name;
+    }
+
+    constexpr int getInputNArgs() const {
+        return nInputArgs;
+    }
+
+    constexpr int getOutputNArgs() const {
+        return nOutputArgs;
     }
 
 private:
@@ -265,6 +287,8 @@ private:
     const char *m_table_name;
     lua_State *m_state;
 };
+
+const auto VoidExtractor = [](lua_State *s){ (void) s; };
 
 class LuaTableConverter {
 

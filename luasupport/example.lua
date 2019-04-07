@@ -3,8 +3,9 @@ Player = {
     Title = "Duke of Cubines",
     Level = 40,
     Stuff = "Hello",
-    Fun = function()
-        print("Hello")
+    Fun = function(input)
+        print("Hello from table function")
+        return input + 10
     end
 }
 

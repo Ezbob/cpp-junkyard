@@ -188,13 +188,13 @@ private:
 };
 
 struct LuaFunctionArg {
-    enum {
+    enum ArgType {
         STRING,
         INT,
         DOUBLE,
         BOOL
     } type;
-    union {
+    union ArgValue {
         const char *strval;
         int intval;
         double doubleval;
@@ -217,6 +217,50 @@ struct LuaFunctionArg {
         value.boolval = bval;
     }
 
+    LuaFunctionArg(LuaFunctionArg::ArgType t) : type(t) {
+        switch (t) {
+            case LuaFunctionArg::ArgType::STRING:
+                value.strval = "";
+                break;
+            case LuaFunctionArg::ArgType::INT:
+                value.intval = 0;
+                break;
+            case LuaFunctionArg::ArgType::DOUBLE:
+                value.doubleval = 0.0;
+                break;
+            case LuaFunctionArg::ArgType::BOOL:
+                value.boolval = false;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void getFromStack(lua_State *L, int stack_index=STACK_TOP) {
+         switch(type) {
+            case LuaFunctionArg::STRING:
+                if (lua_isstring(L, stack_index)) {
+                    value.strval = lua_tostring(L, stack_index);
+                }
+                break;
+            case LuaFunctionArg::INT:
+                if (lua_isinteger(L, stack_index)) {
+                    value.intval = lua_tointeger(L, stack_index);
+                }
+                break;
+            case LuaFunctionArg::DOUBLE:
+                if (lua_isnumber(L, stack_index)) {
+                    value.intval = lua_tonumber(L, stack_index);
+                }
+                break;
+            case LuaFunctionArg::BOOL:
+                if (lua_isboolean(L, stack_index)) {
+                    value.boolval = lua_toboolean(L, stack_index);
+                }
+                break;
+        }
+    }
+
     void pushToStack(lua_State *L) {
         switch(type) {
             case LuaFunctionArg::STRING:
@@ -236,11 +280,14 @@ struct LuaFunctionArg {
 };
 
 
+template<int nArgs>
+using LuaFunctionArgs = std::array<LuaFunctionArg, nArgs>; 
+
 template<int nInputArgs = 0, int nOutputArgs = 0, int faultHandlerIndex = 0>
 class LuaTableFunction {
 
 public:
-    bool operator() (std::function<void (lua_State *)> outputExtractor, std::array<LuaFunctionArg, nInputArgs> *inputArgs = nullptr) {
+    bool operator() (LuaFunctionArgs<nOutputArgs> *outputArgs = nullptr, LuaFunctionArgs<nInputArgs> *inputArgs = nullptr) {
         lua_pushstring(m_state, m_name);
         lua_gettable(m_state, (STACK_TOP - 1));
         if ( lua_isfunction(m_state, STACK_TOP) ) {
@@ -252,7 +299,13 @@ public:
             }
 
             if ( LuaCheckError(m_state, lua_pcall(m_state, m_input, m_output, m_faultHandler_index)) ) {
-                outputExtractor(m_state);
+                if ( outputArgs != nullptr ) {
+                    int i = 0;
+                    for (LuaFunctionArg &arg : (*outputArgs)) {
+                        arg.getFromStack(m_state, STACK_TOP - i);
+                        ++i;
+                    }
+                }
             } else {
                 lua_pop(m_state, 1);
                 return false;
@@ -287,11 +340,6 @@ private:
     const char *m_table_name;
     lua_State *m_state;
 };
-
-template<int nArgs>
-using LuaFunctionInputArgs = std::array<LuaFunctionArg, nArgs>; 
-
-const auto VoidExtractor = [](lua_State *s){ (void) s; };
 
 class LuaTableConverter {
 

@@ -4,8 +4,8 @@ Player = {
     Level = 40,
     Stuff = "Hello",
     Fun = function(input)
-        print("Hello from table function")
-        return input + 10
+        print("Hello from table function. Got input", input)
+        return input + 10, 3
     end
 }
 

@@ -7,7 +7,7 @@ struct Player : public LuaTableConverter {
     std::string name;
     const char *stuff;
     long level;
-    LuaTableFunction<1, 1> fun;
+    LuaTableFunction<1, 2> fun;
 
     void LuaTableMappings() {
         map(title, "Title");
@@ -112,15 +112,21 @@ int main(int argc, char **argv) {
                 << player.stuff
                 << std::endl;
 
-            LuaFunctionInputArgs<player.fun.getInputNArgs()> inputArgs = {{
+            LuaFunctionArgs<player.fun.getInputNArgs()> inputArgs = {{
                 LuaFunctionArg(42)
             }};
 
-            player.fun([](lua_State *s) {
-                if ( lua_isinteger(s, STACK_TOP) ) {
-                    std::cout << lua_tointeger(s, STACK_TOP) << std::endl;
+            LuaFunctionArgs<player.fun.getOutputNArgs()> outputArgs = {{
+                LuaFunctionArg(LuaFunctionArg::ArgType::INT),
+                LuaFunctionArg(LuaFunctionArg::ArgType::INT)
+            }};
+
+            if ( player.fun(&outputArgs, &inputArgs) ) {
+                std::cout << "Output arguments: " << std::endl;
+                for (auto l : outputArgs) {
+                    std::cout << l.value.intval << std::endl; 
                 }
-            }, &inputArgs);
+            }
 
         } else {
             std::cout << "Not read" << std::endl;

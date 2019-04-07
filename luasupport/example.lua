@@ -5,7 +5,7 @@ Player = {
     Stuff = "Hello",
     Fun = function(input)
         print("Hello from table function. Got input", input)
-        return input + 10, 3
+        return input + 10, 3.14
     end
 }
 

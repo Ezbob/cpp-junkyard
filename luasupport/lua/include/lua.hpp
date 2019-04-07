@@ -250,7 +250,7 @@ struct LuaFunctionArg {
                 break;
             case LuaFunctionArg::DOUBLE:
                 if (lua_isnumber(L, stack_index)) {
-                    value.intval = lua_tonumber(L, stack_index);
+                    value.doubleval = (double) lua_tonumber(L, stack_index);
                 }
                 break;
             case LuaFunctionArg::BOOL:
@@ -300,6 +300,10 @@ public:
 
             if ( LuaCheckError(m_state, lua_pcall(m_state, m_input, m_output, m_faultHandler_index)) ) {
                 if ( outputArgs != nullptr ) {
+                    if ( nOutputArgs != outputArgs->size() ) {
+                        throw std::out_of_range("Error: Output arguments size mismatch");
+                    }
+
                     int i = 0;
                     for (LuaFunctionArg &arg : (*outputArgs)) {
                         arg.getFromStack(m_state, STACK_TOP - i);

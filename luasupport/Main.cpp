@@ -117,14 +117,28 @@ int main(int argc, char **argv) {
             }};
 
             LuaFunctionArgs<player.fun.getOutputNArgs()> outputArgs = {{
-                LuaFunctionArg(LuaFunctionArg::ArgType::INT),
+                LuaFunctionArg(LuaFunctionArg::ArgType::DOUBLE),
                 LuaFunctionArg(LuaFunctionArg::ArgType::INT)
             }};
 
             if ( player.fun(&outputArgs, &inputArgs) ) {
                 std::cout << "Output arguments: " << std::endl;
+
                 for (auto l : outputArgs) {
-                    std::cout << l.value.intval << std::endl; 
+                    switch(l.type) {
+                        case LuaFunctionArg::ArgType::INT:
+                            std::cout << l.value.intval << std::endl;
+                            break;
+                        case LuaFunctionArg::ArgType::DOUBLE:
+                            std::cout << l.value.doubleval << std::endl;
+                            break;
+                        case LuaFunctionArg::ArgType::STRING:
+                            std::cout << l.value.strval << std::endl;
+                            break;
+                        case LuaFunctionArg::ArgType::BOOL:
+                            std::cout << l.value.boolval << std::endl;
+                            break;
+                    }
                 }
             }
 

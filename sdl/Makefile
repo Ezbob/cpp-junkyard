@@ -3,7 +3,7 @@ LIB_INCLUDES=-LSDL2-2.0.9\x86_64-w64-mingw32\lib
 CXXFLAGS=-std=c++11 -Wall -Wextra ${HEADER_INCLUDES}
 LDLIBS=-lSDL2main -lSDL2
 
-TARGET=sdlexec
+TARGET=test
 
 SRCS=Main.cpp
 HDRS=$(wildcard *.hpp)

@@ -4,30 +4,35 @@
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
+SDLGlobals globals;
+SDLSurface image;
+SDLWindow window;
+
+bool init() {
+    globals.init(SDL_INIT_VIDEO);
+    window.load(SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN));
+
+    return globals.is_initialized && (window != nullptr);
+}
+
+bool load() {
+    image.loadBMP("assets/helloworld.bmp");
+
+    return (image != nullptr);
+}
+
+void update() {
+    SDLSurface screenSurface = window.getSurface();
+
+    SDL_BlitSurface((SDL_Surface *) image, nullptr, (SDL_Surface *) screenSurface, nullptr);
+
+    window.updateScreen();
+}
+
 int WinMain() {
-    SDLGlobals globals;
 
-    if ( globals.init( SDL_INIT_VIDEO ) ) {
-        SDLWindow window {"SDL2 tutorial", SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT};
-
-        if ( window != nullptr ) {
-            SDLSurface screenSurface = window.getSurface();
-            screenSurface.fill(0xF1, 0xF1, 0xF1);
-
-            window.updateScreen();
-
-        }
-
-        SDLWindow window2 {"SDL22 tutorial", 20, SCREEN_WIDTH, SCREEN_HEIGHT};
-
-        if ( window2 != nullptr ) {
-            SDLSurface screenSurface = window2.getSurface();
-            screenSurface.fill(0x11, 0xFF, 0xFF);
-
-            window2.updateScreen();
-
-        }
-
+    if ( init() && load() ) {
+        update();
         SDL_Delay(2000);
     }
 

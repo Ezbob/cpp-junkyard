@@ -10,9 +10,11 @@ struct SDLGlobals {
     bool init(uint32_t init_flags) {
         if ( SDL_Init( m_flags_set ) < 0 ) {
             std::cerr << "Error: SDL could not be initialized: " << SDL_GetError() << std::endl;
+            is_initialized = false;
             return false;
         }
         m_flags_set = init_flags;
+        is_initialized = true;
         return true;
     }
 
@@ -20,14 +22,40 @@ struct SDLGlobals {
         SDL_Quit();
     }
 
-    uint32_t m_flags_set;
+    uint32_t m_flags_set = 0;
+    bool is_initialized = false; 
 };
 
 class SDLSurface {
 
 public:
-    SDLSurface(SDL_Surface *surface) {
+    SDLSurface(SDL_Surface *surface, bool has_owner) {
         m_surface = surface;
+        m_has_owner = has_owner;
+    }
+
+    SDLSurface() {}
+
+    ~SDLSurface() {
+        if (!m_has_owner && m_surface != nullptr) {
+            SDL_FreeSurface(m_surface);
+        }
+    }
+
+    void load(SDL_Surface *suf) {
+        m_surface = suf;
+
+        if (m_surface == nullptr) {
+            std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
+        }
+    }
+
+    void loadBMP(const char *filename) {
+        m_surface = SDL_LoadBMP(filename);
+
+        if (m_surface == nullptr) {
+            std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
+        }
     }
 
     operator const SDL_Surface *() const {
@@ -53,6 +81,7 @@ public:
 
 private:
     SDL_Surface *m_surface = nullptr;
+    bool m_has_owner = false;
 };
 
 
@@ -77,8 +106,10 @@ public:
         }
     }
 
+    SDLWindow() {}
+
     ~SDLWindow() {
-        SDL_DestroyWindow(m_window);
+        if (m_window != nullptr) SDL_DestroyWindow(m_window);
     }
 
     operator const SDL_Window *() const {
@@ -89,8 +120,15 @@ public:
         return m_window;
     }
 
+    void load(SDL_Window *wind) {
+        m_window = wind;
+        if (m_window == nullptr) {
+            std::cerr << "Error: Window could not be initialize: " << SDL_GetError() << std::endl;
+        }
+    }
+
     SDLSurface getSurface() {
-        return SDLSurface(SDL_GetWindowSurface(m_window));
+        return SDLSurface(SDL_GetWindowSurface(m_window), true);
     }
 
     bool updateScreen() {

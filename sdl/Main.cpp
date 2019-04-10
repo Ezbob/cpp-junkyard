@@ -8,6 +8,8 @@ SDLGlobals globals;
 SDLSurface image;
 SDLWindow window;
 
+SDL_Event event;
+
 bool init() {
     globals.init(SDL_INIT_VIDEO);
     window.load(SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN));
@@ -31,9 +33,18 @@ void update() {
 
 int WinMain() {
 
+    bool doNotQuit = true;
+
     if ( init() && load() ) {
-        update();
-        SDL_Delay(2000);
+        while ( doNotQuit ) {
+            while ( SDL_PollEvent(&event) != 0 ) {
+                if (event.type == SDL_QUIT) {
+                    doNotQuit = false;
+                }
+            }
+
+            update();
+        }
     }
 
     return 0;

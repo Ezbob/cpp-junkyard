@@ -18,9 +18,15 @@ bool init() {
 }
 
 bool load() {
+    bool result = true;
     image.loadBMP("assets/helloworld.bmp");
 
-    return (image != nullptr);
+    result = image != nullptr;
+    if (result) {
+        image.convertToScreenFormat(window);
+    }
+
+    return result;
 }
 
 void update() {

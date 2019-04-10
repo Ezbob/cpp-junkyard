@@ -100,7 +100,12 @@ public:
     void load(SDL_Surface *suf);
     void loadBMP(const char *filename);
     void loadBMP(std::string filename);
+
+    /**
+     * Convert the internal surface pixel format to the screen's pixel format
+     */
     void convertToScreenFormat(const SDLWindow &window);
+
     const SDL_PixelFormat *pixelFormat() const;
     void fill(int r, int g, int b);
     uint32_t rgbColor(int r, int g, int b) const;

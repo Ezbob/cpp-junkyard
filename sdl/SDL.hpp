@@ -4,6 +4,7 @@
 #include "SDL2/SDL.h"
 #include <iostream>
 #include <cstddef>
+#include <memory>
 
 struct SDLGlobals {
 
@@ -23,18 +24,16 @@ struct SDLGlobals {
     }
 
     uint32_t m_flags_set = 0;
-    bool is_initialized = false; 
+    bool is_initialized = false;
 };
 
 class SDLSurface;
 
 class SDLWindow {
-private:
-    SDL_Window *m_window = nullptr;
 
 public:
     SDLWindow(const char *title, int x, int y, int width, int height, uint32_t flags = SDL_WINDOW_SHOWN) {
-        m_window = SDL_CreateWindow( 
+        m_window = SDL_CreateWindow(
             title, x, y, width, height, flags
         );
         if (m_window == nullptr) {
@@ -43,7 +42,7 @@ public:
     }
 
     SDLWindow(const char *title, int xy, int width, int height, uint32_t flags = SDL_WINDOW_SHOWN) {
-        m_window = SDL_CreateWindow( 
+        m_window = SDL_CreateWindow(
             title, xy, xy, width, height, flags
         );
         if (m_window == nullptr) {
@@ -52,10 +51,6 @@ public:
     }
 
     SDLWindow() {}
-
-    ~SDLWindow() {
-        if (m_window != nullptr) SDL_DestroyWindow(m_window);
-    }
 
     operator const SDL_Window *const() const {
         return m_window;
@@ -68,33 +63,31 @@ public:
     void load(SDL_Window *wind);
     SDLSurface getSurface() const;
     bool updateScreen();
+
+private:
+    SDL_Window *m_window;
 };
 
+
 class SDLSurface {
-private:
-    SDL_Surface *m_surface = nullptr;
-    bool m_has_owner = false;
 
 public:
-    SDLSurface(SDL_Surface *surface, bool has_owner) {
-        m_surface = surface;
-        m_has_owner = has_owner;
+    SDLSurface(SDL_Surface *surface) {
+        m_surface = std::shared_ptr<SDL_Surface>(surface, SDL_FreeSurface);
     }
 
     SDLSurface() {}
 
-    ~SDLSurface() {
-        if (!m_has_owner && m_surface != nullptr) {
-            SDL_FreeSurface(m_surface);
-        }
-    }
-
     operator const SDL_Surface *() const {
-        return m_surface;
+        return m_surface.get();
     }
 
     explicit operator SDL_Surface *() const {
-        return m_surface;
+        return m_surface.get();
+    }
+
+    bool isLoaded() const {
+        return m_surface != nullptr;
     }
 
     void load(SDL_Surface *suf);
@@ -102,19 +95,22 @@ public:
     void loadBMP(std::string filename);
 
     /**
-     * Convert the internal surface pixel format to the screen's pixel format
+     * Convert the internal surface pixel format to the other surface's pixelformat
      */
-    void convertToScreenFormat(const SDLWindow &window);
+    void convertToFormat(const SDLSurface &other);
 
     const SDL_PixelFormat *pixelFormat() const;
     void fill(int r, int g, int b);
     uint32_t rgbColor(int r, int g, int b) const;
+
+private:
+    std::shared_ptr<SDL_Surface> m_surface;
 };
 
 // surface impl -------------------------------------------------------------------------------------
 
 void SDLSurface::load(SDL_Surface *suf) {
-    m_surface = suf;
+    m_surface = std::shared_ptr<SDL_Surface>(suf, SDL_FreeSurface);
 
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
@@ -122,7 +118,7 @@ void SDLSurface::load(SDL_Surface *suf) {
 }
 
 void SDLSurface::loadBMP(const char *filename) {
-    m_surface = SDL_LoadBMP(filename);
+    m_surface = std::shared_ptr<SDL_Surface>(SDL_LoadBMP(filename), SDL_FreeSurface);
 
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
@@ -130,24 +126,22 @@ void SDLSurface::loadBMP(const char *filename) {
 }
 
 void SDLSurface::loadBMP(std::string filename) {
-    m_surface = SDL_LoadBMP(filename.c_str());
+    m_surface = std::shared_ptr<SDL_Surface>(SDL_LoadBMP(filename.c_str()), SDL_FreeSurface);
 
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
     }
 }
 
-void SDLSurface::convertToScreenFormat(const SDLWindow &window) {
-    if (m_has_owner == false) {
-        SDL_Surface *optimizedSurface = nullptr;
-        SDLSurface windowSurface = window.getSurface();
-        optimizedSurface = SDL_ConvertSurface(m_surface, windowSurface.pixelFormat(), 0);
-        if (optimizedSurface == nullptr) {
-            std::cerr << "Error: Surface replace could not be initialized; convertion failed" << std::endl;
-        } else {
-            SDL_FreeSurface(m_surface);
-            m_surface = optimizedSurface;
-        }
+void SDLSurface::convertToFormat(const SDLSurface &other) {
+
+    std::shared_ptr<SDL_Surface> optimizedSurface = nullptr;
+    optimizedSurface = std::shared_ptr<SDL_Surface>(SDL_ConvertSurface(m_surface.get(), other.pixelFormat(), 0), SDL_FreeSurface);
+    if (optimizedSurface == nullptr) {
+        std::cerr << "Error: Surface replace could not be initialized; convertion failed" << std::endl;
+    } else {
+        m_surface.swap(optimizedSurface);
+        m_surface = optimizedSurface;
     }
 }
 
@@ -156,7 +150,7 @@ const SDL_PixelFormat *SDLSurface::pixelFormat() const {
 }
 
 void SDLSurface::fill(int r, int g, int b) {
-    SDL_FillRect(m_surface, nullptr, rgbColor(r, g, b));
+    SDL_FillRect(m_surface.get(), nullptr, rgbColor(r, g, b));
 }
 
 uint32_t SDLSurface::rgbColor(int r, int g, int b) const {
@@ -174,7 +168,7 @@ void SDLWindow::load(SDL_Window *wind) {
 }
 
 SDLSurface SDLWindow::getSurface() const {
-    return SDLSurface(SDL_GetWindowSurface(m_window), true);
+    return SDLSurface(SDL_GetWindowSurface(m_window));
 }
 
 bool SDLWindow::updateScreen() {

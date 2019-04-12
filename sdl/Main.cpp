@@ -18,6 +18,7 @@ namespace KeySurfaces {
 SDLGlobals globals;
 SDLWindow window;
 SDL_Event event;
+bool isPlaying = true;
 
 SDLSurface keyPressSurfaces[KeySurfaces::TOTAL];
 
@@ -72,36 +73,37 @@ void update() {
     window.updateScreen();
 }
 
+void handleInput() {
+    while ( SDL_PollEvent(&event) != 0 ) {
+        if (event.type == SDL_QUIT) {
+            isPlaying = false;
+        } else if (event.type == SDL_KEYDOWN) {
+            switch (event.key.keysym.sym) {
+                case SDLK_UP:
+                    currentImage = KeySurfaces::UP;
+                    break;
+                case SDLK_DOWN:
+                    currentImage = KeySurfaces::DOWN;
+                    break;
+                case SDLK_LEFT:
+                    currentImage = KeySurfaces::LEFT;
+                    break;
+                case SDLK_RIGHT:
+                    currentImage = KeySurfaces::RIGHT;
+                    break;
+                default:
+                    currentImage = KeySurfaces::DEFAULT;
+                    break;
+            }
+        }
+    }
+}
+
 int WinMain() {
 
-    bool doNotQuit = true;
-
     if ( init() && load() ) {
-        while ( doNotQuit ) {
-            while ( SDL_PollEvent(&event) != 0 ) {
-                if (event.type == SDL_QUIT) {
-                    doNotQuit = false;
-                } else if (event.type == SDL_KEYDOWN) {
-                    switch (event.key.keysym.sym) {
-                        case SDLK_UP:
-                            currentImage = KeySurfaces::UP;
-                            break;
-                        case SDLK_DOWN:
-                            currentImage = KeySurfaces::DOWN;
-                            break;
-                        case SDLK_LEFT:
-                            currentImage = KeySurfaces::LEFT;
-                            break;
-                        case SDLK_RIGHT:
-                            currentImage = KeySurfaces::RIGHT;
-                            break;
-                        default:
-                            currentImage = KeySurfaces::DEFAULT;
-                            break;
-                    }
-                }
-            }
-
+        while ( isPlaying ) {
+            handleInput();
             update();
         }
     }

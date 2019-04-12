@@ -65,9 +65,9 @@ bool load() {
 
 void update() {
     SDLSurface screenSurface = window.getSurface();
-    SDL_Surface *currentSurface = (SDL_Surface*) keyPressSurfaces[currentImage];
+    SDLSurface currentSurface = keyPressSurfaces[currentImage];
 
-    SDL_BlitSurface(currentSurface, nullptr, (SDL_Surface *) screenSurface, nullptr);
+    SDL_BlitSurface((SDL_Surface *) currentSurface, nullptr, (SDL_Surface *) screenSurface, nullptr);
 
     window.updateScreen();
 }

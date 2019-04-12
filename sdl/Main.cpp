@@ -3,6 +3,7 @@
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
+bool isPlaying = true;
 
 namespace KeySurfaces {
     enum key {
@@ -12,13 +13,12 @@ namespace KeySurfaces {
         LEFT,
         RIGHT,
         TOTAL
-    } ;
+    };
 }
 
 SDLGlobals globals;
 SDLWindow window;
 SDL_Event event;
-bool isPlaying = true;
 
 SDLSurface keyPressSurfaces[KeySurfaces::TOTAL];
 
@@ -26,7 +26,7 @@ KeySurfaces::key currentImage;
 
 SDLSurface loadSurface(std::string path) {
     SDLSurface image;
-    image.loadBMP(path);
+    image.loadPNG(path);
 
     bool isLoaded = image.isLoaded();
     if ( isLoaded ) {
@@ -37,28 +37,35 @@ SDLSurface loadSurface(std::string path) {
 }
 
 bool init() {
-    globals.init(SDL_INIT_VIDEO);
-    window.load(SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN));
+    if ( globals.init(SDL_INIT_VIDEO) ) {
+        globals.loadExternLib(SDLExternLibs::SDL_IMAGE, IMG_INIT_PNG);
+        window.load(SDL_CreateWindow(
+            "SDL Tutorial",
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            SCREEN_WIDTH, SCREEN_HEIGHT,
+            SDL_WINDOW_SHOWN));
+    }
 
-    return globals.is_initialized && (window != nullptr);
+    return globals.is_initialized && window.isLoaded();
 }
 
 bool load() {
     bool result = true;
 
-    keyPressSurfaces[KeySurfaces::DEFAULT] = loadSurface("assets/helloworld.bmp");
+    keyPressSurfaces[KeySurfaces::DEFAULT] = loadSurface("assets/helloworld.png");
     result = result && keyPressSurfaces[KeySurfaces::DEFAULT].isLoaded();
 
-    keyPressSurfaces[KeySurfaces::UP] = loadSurface("assets/up.bmp");
+    keyPressSurfaces[KeySurfaces::UP] = loadSurface("assets/up.png");
     result = result && keyPressSurfaces[KeySurfaces::UP].isLoaded();
 
-    keyPressSurfaces[KeySurfaces::DOWN] = loadSurface("assets/down.bmp");
+    keyPressSurfaces[KeySurfaces::DOWN] = loadSurface("assets/down.png");
     result = result && keyPressSurfaces[KeySurfaces::DOWN].isLoaded();
 
-    keyPressSurfaces[KeySurfaces::LEFT] = loadSurface("assets/left.bmp");
+    keyPressSurfaces[KeySurfaces::LEFT] = loadSurface("assets/left.png");
     result = result && keyPressSurfaces[KeySurfaces::LEFT].isLoaded();
 
-    keyPressSurfaces[KeySurfaces::RIGHT] = loadSurface("assets/right.bmp");
+    keyPressSurfaces[KeySurfaces::RIGHT] = loadSurface("assets/right.png");
     result = result && keyPressSurfaces[KeySurfaces::RIGHT].isLoaded();
 
     return result;

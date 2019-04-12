@@ -1,10 +1,17 @@
 #ifndef SDL_HPP_HEADER_364be655e3b01471341a61c7489902c3
 #define SDL_HPP_HEADER_364be655e3b01471341a61c7489902c3
 
-#include "SDL2/SDL.h"
+#include "SDL.h"
+#include "SDL_image.h"
 #include <iostream>
 #include <cstddef>
 #include <memory>
+
+namespace SDLExternLibs {
+    enum lib {
+        SDL_IMAGE = 1,
+    };
+}
 
 struct SDLGlobals {
 
@@ -19,10 +26,36 @@ struct SDLGlobals {
         return true;
     }
 
-    ~SDLGlobals() {
-        SDL_Quit();
+    bool loadExternLib(SDLExternLibs::lib libsChosen, uint32_t libFlags = 0) {
+
+        switch (libsChosen) {
+            case SDLExternLibs::SDL_IMAGE:
+                if ( !( IMG_Init(libFlags) & libFlags ) ) { // IMG_Init returns the flags set
+                    std::cerr << "Error: Could not initialize SDL_Image: " << IMG_GetError() << std::endl;
+                } else {
+                    is_initialized = is_initialized && true;
+                }
+                break;
+            
+            default:
+                break;
+        }
+
+        if (is_initialized)
+            m_libs_set |= libsChosen;
+
+        return is_initialized;
     }
 
+    ~SDLGlobals() {
+        SDL_Quit();
+
+        if ( (m_libs_set & SDLExternLibs::SDL_IMAGE) == SDLExternLibs::SDL_IMAGE ) {
+            IMG_Quit();
+        }
+    }
+
+    uint32_t m_libs_set = 0;
     uint32_t m_flags_set = 0;
     bool is_initialized = false;
 };
@@ -61,6 +94,7 @@ public:
     }
 
     void load(SDL_Window *wind);
+    bool isLoaded();
     SDLSurface getSurface() const;
     bool updateScreen();
 
@@ -91,8 +125,8 @@ public:
     }
 
     void load(SDL_Surface *suf);
-    void loadBMP(const char *filename);
     void loadBMP(std::string filename);
+    void loadPNG(std::string filename);
 
     /**
      * Convert the internal surface pixel format to the other surface's pixelformat
@@ -117,16 +151,16 @@ void SDLSurface::load(SDL_Surface *suf) {
     }
 }
 
-void SDLSurface::loadBMP(const char *filename) {
-    m_surface = std::shared_ptr<SDL_Surface>(SDL_LoadBMP(filename), SDL_FreeSurface);
+void SDLSurface::loadBMP(std::string filename) {
+    m_surface = std::shared_ptr<SDL_Surface>(SDL_LoadBMP(filename.c_str()), SDL_FreeSurface);
 
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
     }
 }
 
-void SDLSurface::loadBMP(std::string filename) {
-    m_surface = std::shared_ptr<SDL_Surface>(SDL_LoadBMP(filename.c_str()), SDL_FreeSurface);
+void SDLSurface::loadPNG(std::string filename) {
+    m_surface = std::shared_ptr<SDL_Surface>(IMG_Load(filename.c_str()), SDL_FreeSurface);
 
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
@@ -173,6 +207,10 @@ SDLSurface SDLWindow::getSurface() const {
 
 bool SDLWindow::updateScreen() {
     return SDL_UpdateWindowSurface(m_window) == 0;
+}
+
+bool SDLWindow::isLoaded() {
+    return m_window != nullptr;
 }
 
 #endif

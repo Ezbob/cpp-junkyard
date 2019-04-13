@@ -18,11 +18,14 @@ namespace KeySurfaces {
 
 SDLGlobals globals;
 SDLWindow window;
+SDLRenderer renderer;
+SDLTexture imageTexture;
+
 SDL_Event event;
 
-SDLSurface keyPressSurfaces[KeySurfaces::TOTAL];
+//SDLSurface keyPressSurfaces[KeySurfaces::TOTAL];
 
-KeySurfaces::key currentImage;
+//KeySurfaces::key currentImage;
 
 SDLSurface loadSurface(std::string path) {
     SDLSurface image;
@@ -36,23 +39,44 @@ SDLSurface loadSurface(std::string path) {
     return image;
 }
 
-bool init() {
-    if ( globals.init(SDL_INIT_VIDEO) ) {
-        globals.loadExternLib(SDLExternLibs::SDL_IMAGE, IMG_INIT_PNG);
-        window.load(SDL_CreateWindow(
-            "SDL Tutorial",
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            SCREEN_WIDTH, SCREEN_HEIGHT,
-            SDL_WINDOW_SHOWN));
+SDLTexture loadTexture(std::string path) {
+    SDLTexture texture;
+
+    SDLSurface loadedSurface;
+    loadedSurface.loadPNG(path);
+    if ( loadedSurface.isLoaded() ) {
+        texture.load(SDL_CreateTextureFromSurface((SDL_Renderer *)renderer, (SDL_Surface *)loadedSurface));
     }
 
-    return globals.is_initialized && window.isLoaded();
+    return texture;
+}
+
+bool init() {
+    bool result = true;
+
+    if ( globals.init(SDL_INIT_VIDEO) ) {
+        globals.loadExternLib(SDLExternLibs::SDL_IMAGE, IMG_INIT_PNG);
+        window.loadWindow("SDL Tutorial", 
+            SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+            SCREEN_WIDTH, SCREEN_HEIGHT,
+            SDL_WINDOW_SHOWN);
+
+        renderer.load((SDL_Window *) window, -1, SDL_RENDERER_ACCELERATED);
+        renderer.setDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
+    }
+
+    result = globals.is_initialized && window.isLoaded();
+
+    return result;
 }
 
 bool load() {
     bool result = true;
 
+    imageTexture = loadTexture("assets/helloworld.png");
+    result = imageTexture.isLoaded();
+
+/*
     keyPressSurfaces[KeySurfaces::DEFAULT] = loadSurface("assets/helloworld.png");
     result = result && keyPressSurfaces[KeySurfaces::DEFAULT].isLoaded();
 
@@ -67,24 +91,29 @@ bool load() {
 
     keyPressSurfaces[KeySurfaces::RIGHT] = loadSurface("assets/right.png");
     result = result && keyPressSurfaces[KeySurfaces::RIGHT].isLoaded();
-
+*/
     return result;
 }
 
 void update() {
-    SDLSurface screenSurface = window.getSurface();
-    SDLSurface currentSurface = keyPressSurfaces[currentImage];
+    //SDLSurface screenSurface = window.getSurface();
+    //SDLSurface currentSurface = keyPressSurfaces[currentImage];
 
-    SDL_BlitSurface((SDL_Surface *) currentSurface, nullptr, (SDL_Surface *) screenSurface, nullptr);
+    //SDL_BlitSurface((SDL_Surface *) currentSurface, nullptr, (SDL_Surface *) screenSurface, nullptr);
 
-    window.updateScreen();
+    renderer.clear();
+    renderer.copyTexture(imageTexture);
+    renderer.updateScreen();
+
+    //window.updateScreen();
 }
 
 void handleInput() {
     while ( SDL_PollEvent(&event) != 0 ) {
         if (event.type == SDL_QUIT) {
             isPlaying = false;
-        } else if (event.type == SDL_KEYDOWN) {
+        } 
+        /*else if (event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
                     currentImage = KeySurfaces::UP;
@@ -103,6 +132,7 @@ void handleInput() {
                     break;
             }
         }
+        */
     }
 }
 

@@ -93,6 +93,7 @@ public:
         return m_window;
     }
 
+    void loadWindow(std::string windowName, int x, int y, int width, int height, uint32_t flags);
     void load(SDL_Window *wind);
     bool isLoaded();
     SDLSurface getSurface() const;
@@ -101,7 +102,6 @@ public:
 private:
     SDL_Window *m_window;
 };
-
 
 class SDLSurface {
 
@@ -140,6 +140,109 @@ public:
 private:
     std::shared_ptr<SDL_Surface> m_surface;
 };
+
+class SDLTexture {
+
+public:
+    SDLTexture() {
+        m_texture = nullptr;
+    }
+
+    void load(SDL_Texture *texture);
+    bool isLoaded();
+
+    operator const SDL_Texture *() const {
+        return m_texture.get();
+    }
+
+    explicit operator SDL_Texture *() const {
+        return m_texture.get();
+    }
+
+private:
+    std::shared_ptr<SDL_Texture> m_texture;
+};
+
+class SDLRenderer {
+
+public:
+    SDLRenderer(SDL_Window *window, int index, uint32_t rendererFlags) {
+        m_renderer = std::shared_ptr<SDL_Renderer>(SDL_CreateRenderer(window, index, rendererFlags), SDL_DestroyRenderer);
+        m_window_parent = window;
+        if (m_renderer == nullptr) {
+            std::cerr << "Error: Could not initialize renderer: " << SDL_GetError() << std::endl;
+        }
+    }
+
+    SDLRenderer() {}
+
+    void load(SDL_Window *window, int index, uint32_t rendererFlags) {
+        m_renderer = std::shared_ptr<SDL_Renderer>(SDL_CreateRenderer(window, index, rendererFlags), SDL_DestroyRenderer);
+        m_window_parent = window;
+        if (m_renderer == nullptr) {
+            std::cerr << "Error: Could not initialize renderer: " << SDL_GetError() << std::endl;
+        }
+    }
+
+    bool clear() {
+        int success = SDL_RenderClear(m_renderer.get());
+        if (success != 0) {
+            std::cerr << "Error: Could not clear renderer: " << SDL_GetError() << std::endl;
+        }
+        return success == 0;
+    }
+
+    bool copyTexture(SDLTexture &texture, SDL_Rect *src = nullptr, SDL_Rect *dest = nullptr) {
+        int success = SDL_RenderCopy(m_renderer.get(), (SDL_Texture *) texture, src, dest);
+        if (success != 0) {
+            std::cerr << "Error: Could not copy texture to renderer: " << SDL_GetError() << std::endl;
+        }
+        return success == 0;
+    }
+
+    void updateScreen() {
+        SDL_RenderPresent(m_renderer.get());
+    }
+
+    bool setDrawColor(int r, int g, int b, int a) {
+        int success = SDL_SetRenderDrawColor(m_renderer.get(), r, g, b, a);
+        if (success != 0) {
+            std::cerr << "Error: Could not set renderer color: " << SDL_GetError() << std::endl;
+        }
+        return success == 0;
+    }
+
+    bool isLoaded() { 
+        return m_renderer != nullptr;
+    }
+
+    operator const SDL_Renderer *const() const {
+        return m_renderer.get();
+    }
+
+    explicit operator SDL_Renderer *() const {
+        return m_renderer.get();
+    }
+
+private:
+    SDL_Window *m_window_parent = nullptr;
+    std::shared_ptr<SDL_Renderer> m_renderer = nullptr;
+};
+
+
+// texture impl -------------------------------------------------------------------------------------
+
+void SDLTexture::load(SDL_Texture *texture) {
+    m_texture = std::shared_ptr<SDL_Texture>(texture, SDL_DestroyTexture);
+    if (m_texture == nullptr) {
+        std::cerr << "Error: Could not load texture: " << SDL_GetError() << std::endl;
+    }
+}
+
+bool SDLTexture::isLoaded() {
+    return (m_texture != nullptr);
+}
+
 
 // surface impl -------------------------------------------------------------------------------------
 
@@ -211,6 +314,14 @@ bool SDLWindow::updateScreen() {
 
 bool SDLWindow::isLoaded() {
     return m_window != nullptr;
+}
+
+void SDLWindow::loadWindow(std::string windowName, int x, int y, int width, int height, uint32_t flags) {
+    m_window = SDL_CreateWindow(windowName.c_str(), x, y, width, height, flags);
+
+    if (m_window == nullptr) {
+        std::cerr << "Error: Window could not be initialize: " << SDL_GetError() << std::endl;
+    }
 }
 
 #endif

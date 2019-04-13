@@ -22,7 +22,6 @@ SDLRenderer renderer;
 SDLTexture imageTexture;
 
 SDL_Event event;
-
 //SDLSurface keyPressSurfaces[KeySurfaces::TOTAL];
 
 //KeySurfaces::key currentImage;
@@ -62,7 +61,7 @@ bool init() {
             SDL_WINDOW_SHOWN);
 
         renderer.load((SDL_Window *) window, -1, SDL_RENDERER_ACCELERATED);
-        renderer.setDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
+        renderer.setColor(0xFF, 0xFF, 0xFF, 0xFF);
     }
 
     result = globals.is_initialized && window.isLoaded();
@@ -73,10 +72,10 @@ bool init() {
 bool load() {
     bool result = true;
 
+/*
     imageTexture = loadTexture("assets/helloworld.png");
     result = imageTexture.isLoaded();
 
-/*
     keyPressSurfaces[KeySurfaces::DEFAULT] = loadSurface("assets/helloworld.png");
     result = result && keyPressSurfaces[KeySurfaces::DEFAULT].isLoaded();
 
@@ -100,9 +99,19 @@ void update() {
     //SDLSurface currentSurface = keyPressSurfaces[currentImage];
 
     //SDL_BlitSurface((SDL_Surface *) currentSurface, nullptr, (SDL_Surface *) screenSurface, nullptr);
-
+    renderer.setColor(0xFF, 0xFF, 0xFF);
     renderer.clear();
-    renderer.copyTexture(imageTexture);
+    //renderer.copyTexture(imageTexture);
+
+    SDL_Rect fillRect = { SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
+    renderer.setColor(0xFF, 0x00, 0x00);
+    renderer.fillRect(fillRect);
+    renderer.setColor(0x00, 0xFF, 0x00);
+    fillRect.x += 20;
+    fillRect.y += 20;
+    fillRect.w += 20;
+    fillRect.h += 20;
+    renderer.fillRect(fillRect);
     renderer.updateScreen();
 
     //window.updateScreen();
@@ -112,7 +121,7 @@ void handleInput() {
     while ( SDL_PollEvent(&event) != 0 ) {
         if (event.type == SDL_QUIT) {
             isPlaying = false;
-        } 
+        }
         /*else if (event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
                 case SDLK_UP:

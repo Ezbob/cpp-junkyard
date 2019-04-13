@@ -13,6 +13,13 @@ namespace SDLExternLibs {
     };
 }
 
+constexpr int CheckSDLError(int success, const char *message) {
+    if (success != 0) { 
+            std::cerr << "Error: " << message << ": " << SDL_GetError() << std::endl; 
+    } 
+    return success == 0;
+}
+
 struct SDLGlobals {
 
     bool init(uint32_t init_flags) {
@@ -97,7 +104,7 @@ public:
     void load(SDL_Window *wind);
     bool isLoaded();
     SDLSurface getSurface() const;
-    bool updateScreen();
+    bool updateScreen() const;
 
 private:
     SDL_Window *m_window;
@@ -185,31 +192,43 @@ public:
     }
 
     bool clear() {
-        int success = SDL_RenderClear(m_renderer.get());
-        if (success != 0) {
-            std::cerr << "Error: Could not clear renderer: " << SDL_GetError() << std::endl;
-        }
-        return success == 0;
+        return CheckSDLError(SDL_RenderClear(m_renderer.get()), "Could not clear renderer");
     }
 
     bool copyTexture(SDLTexture &texture, SDL_Rect *src = nullptr, SDL_Rect *dest = nullptr) {
-        int success = SDL_RenderCopy(m_renderer.get(), (SDL_Texture *) texture, src, dest);
-        if (success != 0) {
-            std::cerr << "Error: Could not copy texture to renderer: " << SDL_GetError() << std::endl;
-        }
-        return success == 0;
+        return CheckSDLError(SDL_RenderCopy(m_renderer.get(), (SDL_Texture *) texture, src, dest), "Could not copy texture to renderer");
     }
 
-    void updateScreen() {
+    void updateScreen() const {
         SDL_RenderPresent(m_renderer.get());
     }
 
-    bool setDrawColor(int r, int g, int b, int a) {
-        int success = SDL_SetRenderDrawColor(m_renderer.get(), r, g, b, a);
-        if (success != 0) {
-            std::cerr << "Error: Could not set renderer color: " << SDL_GetError() << std::endl;
-        }
-        return success == 0;
+    bool setColor(int r, int g, int b, int a = 0xFF) {
+        return CheckSDLError(SDL_SetRenderDrawColor(m_renderer.get(), r, g, b, a), "Could not set renderer color");
+    }
+
+    bool drawRect(const SDL_Rect *fillRect) {
+        return CheckSDLError(SDL_RenderDrawRect(m_renderer.get(), fillRect), "Could not draw rectangle");
+    }
+
+    bool drawRect(const SDL_Rect &fillRect) {
+        return CheckSDLError(SDL_RenderDrawRect(m_renderer.get(), &fillRect), "Could not draw rectangle");
+    }
+
+    bool fillRect(const SDL_Rect *fillRect) {
+        return CheckSDLError(SDL_RenderFillRect(m_renderer.get(), fillRect), "Could not fill rectangle");
+    }
+
+    bool fillRect(const SDL_Rect &fillRect) {
+        return CheckSDLError(SDL_RenderFillRect(m_renderer.get(), &fillRect), "Could not fill rectangle");
+    }
+
+    bool drawLine(int x1, int y1, int x2, int y2) {
+        return CheckSDLError(SDL_RenderDrawLine(m_renderer.get(), x1, y1, x2, y2), "Could not draw line");
+    }
+
+    bool drawPoint(int x, int y) {
+        return CheckSDLError(SDL_RenderDrawPoint(m_renderer.get(), x, y), "Could not draw point"); 
     }
 
     bool isLoaded() { 
@@ -308,7 +327,7 @@ SDLSurface SDLWindow::getSurface() const {
     return SDLSurface(SDL_GetWindowSurface(m_window));
 }
 
-bool SDLWindow::updateScreen() {
+bool SDLWindow::updateScreen() const {
     return SDL_UpdateWindowSurface(m_window) == 0;
 }
 

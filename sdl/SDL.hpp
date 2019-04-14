@@ -7,11 +7,9 @@
 #include <cstddef>
 #include <memory>
 
-namespace SDLExternLibs {
-    enum lib {
-        SDL_IMAGE = 1,
-    };
-}
+enum class SDLExternLibs {
+    SDL_IMAGE = 1,
+};
 
 constexpr int CheckSDLError(int success, const char *message) {
     if (success != 0) { 
@@ -36,7 +34,7 @@ struct SDLGlobals {
         return true;
     }
 
-    bool loadExternLib(SDLExternLibs::lib libsChosen, uint32_t libFlags = 0) {
+    bool loadExternLib(SDLExternLibs libsChosen, uint32_t libFlags = 0) {
 
         switch (libsChosen) {
             case SDLExternLibs::SDL_IMAGE:
@@ -52,15 +50,15 @@ struct SDLGlobals {
         }
 
         if (is_initialized)
-            m_libs_set |= libsChosen;
+            m_libs_set |= static_cast<int>(libsChosen);
 
         return is_initialized;
     }
 
     ~SDLGlobals() {
         SDL_Quit();
-
-        if ( (m_libs_set & SDLExternLibs::SDL_IMAGE) == SDLExternLibs::SDL_IMAGE ) {
+        uint32_t imageFeature = static_cast<uint32_t>(SDLExternLibs::SDL_IMAGE);
+        if ( (m_libs_set & imageFeature) == imageFeature ) {
             IMG_Quit();
         }
     }
@@ -68,6 +66,7 @@ struct SDLGlobals {
     uint32_t m_libs_set = 0;
     uint32_t m_flags_set = 0;
     bool is_initialized = false;
+    bool is_playing = true;
 };
 
 class SDLWindow {

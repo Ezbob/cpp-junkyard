@@ -3,18 +3,6 @@
 
 const int SCREEN_WIDTH = 840;
 const int SCREEN_HEIGHT = 480;
-bool isPlaying = true;
-
-namespace KeySurfaces {
-    enum key {
-        DEFAULT = 0,
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
-        TOTAL
-    };
-}
 
 SDLGlobals globals;
 SDLWindow window;
@@ -122,7 +110,7 @@ void update() {
 void handleInput() {
     while ( SDL_PollEvent(&event) != 0 ) {
         if (event.type == SDL_QUIT) {
-            isPlaying = false;
+            globals.is_playing = false;
         }
     }
 }
@@ -130,7 +118,7 @@ void handleInput() {
 int WinMain() {
 
     if ( init() && load() ) {
-        while ( isPlaying ) {
+        while ( globals.is_playing ) {
             handleInput();
             update();
         }

@@ -22,9 +22,6 @@ SDLRenderer renderer;
 SDLTexture imageTexture;
 
 SDL_Event event;
-//SDLSurface keyPressSurfaces[KeySurfaces::TOTAL];
-
-//KeySurfaces::key currentImage;
 
 SDLSurface loadSurface(std::string path) {
     SDLSurface image;
@@ -44,7 +41,7 @@ SDLTexture loadTexture(std::string path) {
     SDLSurface loadedSurface;
     loadedSurface.loadPNG(path);
     if ( loadedSurface.isLoaded() ) {
-        texture.load(SDL_CreateTextureFromSurface((SDL_Renderer *)renderer, (SDL_Surface *)loadedSurface));
+        texture.load(renderer.createTextureFromSurface((SDL_Surface *) loadedSurface));
     }
 
     return texture;
@@ -72,49 +69,46 @@ bool init() {
 bool load() {
     bool result = true;
 
-/*
     imageTexture = loadTexture("assets/helloworld.png");
-    result = imageTexture.isLoaded();
 
-    keyPressSurfaces[KeySurfaces::DEFAULT] = loadSurface("assets/helloworld.png");
-    result = result && keyPressSurfaces[KeySurfaces::DEFAULT].isLoaded();
-
-    keyPressSurfaces[KeySurfaces::UP] = loadSurface("assets/up.png");
-    result = result && keyPressSurfaces[KeySurfaces::UP].isLoaded();
-
-    keyPressSurfaces[KeySurfaces::DOWN] = loadSurface("assets/down.png");
-    result = result && keyPressSurfaces[KeySurfaces::DOWN].isLoaded();
-
-    keyPressSurfaces[KeySurfaces::LEFT] = loadSurface("assets/left.png");
-    result = result && keyPressSurfaces[KeySurfaces::LEFT].isLoaded();
-
-    keyPressSurfaces[KeySurfaces::RIGHT] = loadSurface("assets/right.png");
-    result = result && keyPressSurfaces[KeySurfaces::RIGHT].isLoaded();
-*/
     return result;
 }
 
 void update() {
-    //SDLSurface screenSurface = window.getSurface();
-    //SDLSurface currentSurface = keyPressSurfaces[currentImage];
-
-    //SDL_BlitSurface((SDL_Surface *) currentSurface, nullptr, (SDL_Surface *) screenSurface, nullptr);
     renderer.setColor(0xFF, 0xFF, 0xFF);
     renderer.clear();
-    //renderer.copyTexture(imageTexture);
 
-    SDL_Rect fillRect = { SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
-    renderer.setColor(0xFF, 0x00, 0x00);
-    renderer.fillRect(fillRect);
-    renderer.setColor(0x00, 0xFF, 0x00);
-    fillRect.x += 20;
-    fillRect.y += 20;
-    fillRect.w += 20;
-    fillRect.h += 20;
-    renderer.fillRect(fillRect);
+    SDL_Rect topLeftVp;
+    topLeftVp.x = 0;
+    topLeftVp.y = 0;
+    topLeftVp.w = SCREEN_WIDTH / 2;
+    topLeftVp.h = SCREEN_HEIGHT / 2;
+
+    renderer.setViewPort(topLeftVp);
+
+    renderer.copyTexture(imageTexture);
+
+    SDL_Rect topRightVp;
+    topRightVp.x = SCREEN_WIDTH / 2;
+    topRightVp.y = 0;
+    topRightVp.w = SCREEN_WIDTH / 2;
+    topRightVp.h = SCREEN_HEIGHT / 2;
+
+    renderer.setViewPort(topRightVp);
+
+    renderer.copyTexture(imageTexture);
+
+    SDL_Rect bottomVp;
+    bottomVp.x = 0;
+    bottomVp.y = SCREEN_HEIGHT / 2;
+    bottomVp.w = SCREEN_WIDTH;
+    bottomVp.h = SCREEN_HEIGHT / 2;
+
+    renderer.setViewPort(bottomVp);
+
+    renderer.copyTexture(imageTexture);
+
     renderer.updateScreen();
-
-    //window.updateScreen();
 }
 
 void handleInput() {
@@ -122,26 +116,6 @@ void handleInput() {
         if (event.type == SDL_QUIT) {
             isPlaying = false;
         }
-        /*else if (event.type == SDL_KEYDOWN) {
-            switch (event.key.keysym.sym) {
-                case SDLK_UP:
-                    currentImage = KeySurfaces::UP;
-                    break;
-                case SDLK_DOWN:
-                    currentImage = KeySurfaces::DOWN;
-                    break;
-                case SDLK_LEFT:
-                    currentImage = KeySurfaces::LEFT;
-                    break;
-                case SDLK_RIGHT:
-                    currentImage = KeySurfaces::RIGHT;
-                    break;
-                default:
-                    currentImage = KeySurfaces::DEFAULT;
-                    break;
-            }
-        }
-        */
     }
 }
 

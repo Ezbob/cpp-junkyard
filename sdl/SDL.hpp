@@ -191,6 +191,14 @@ public:
         }
     }
 
+    SDL_Texture *createTextureFromSurface(SDL_Surface &surface) {
+        return SDL_CreateTextureFromSurface(m_renderer.get(), &surface);
+    }
+
+    SDL_Texture *createTextureFromSurface(SDL_Surface *surface) {
+        return SDL_CreateTextureFromSurface(m_renderer.get(), surface);
+    }
+
     bool clear() {
         return CheckSDLError(SDL_RenderClear(m_renderer.get()), "Could not clear renderer");
     }
@@ -229,6 +237,10 @@ public:
 
     bool drawPoint(int x, int y) {
         return CheckSDLError(SDL_RenderDrawPoint(m_renderer.get(), x, y), "Could not draw point"); 
+    }
+
+    bool setViewPort(SDL_Rect &rect) {
+        return CheckSDLError(SDL_RenderSetViewport(m_renderer.get(), &rect), "Could not set view port");
     }
 
     bool isLoaded() { 

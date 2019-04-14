@@ -12,6 +12,11 @@ SDLTexture manTexture;
 
 SDL_Event event;
 
+struct Man {
+    int x = 330;
+    int y = 290;
+} man;
+
 SDLSurface loadSurface(std::string path) {
     SDLSurface image;
     image.loadPNG(path);
@@ -71,39 +76,8 @@ void update() {
 
     backgroundTexture.render();
 
-    manTexture.render(330, 290);
+    manTexture.render(man.x, man.y);
 
-/*
-    SDL_Rect topLeftVp;
-    topLeftVp.x = 0;
-    topLeftVp.y = 0;
-    topLeftVp.w = SCREEN_WIDTH / 2;
-    topLeftVp.h = SCREEN_HEIGHT / 2;
-
-    renderer.setViewPort(topLeftVp);
-
-    renderer.copyTexture(imageTexture);
-
-    SDL_Rect topRightVp;
-    topRightVp.x = SCREEN_WIDTH / 2;
-    topRightVp.y = 0;
-    topRightVp.w = SCREEN_WIDTH / 2;
-    topRightVp.h = SCREEN_HEIGHT / 2;
-
-    renderer.setViewPort(topRightVp);
-
-    renderer.copyTexture(imageTexture);
-
-    SDL_Rect bottomVp;
-    bottomVp.x = 0;
-    bottomVp.y = SCREEN_HEIGHT / 2;
-    bottomVp.w = SCREEN_WIDTH;
-    bottomVp.h = SCREEN_HEIGHT / 2;
-
-    renderer.setViewPort(bottomVp);
-
-    renderer.copyTexture(imageTexture);
-*/
     renderer.updateScreen();
 }
 
@@ -111,6 +85,15 @@ void handleInput() {
     while ( SDL_PollEvent(&event) != 0 ) {
         if (event.type == SDL_QUIT) {
             globals.is_playing = false;
+        } else if ( event.type == SDL_KEYDOWN ) {
+            switch ( event.key.keysym.sym ) {
+                case SDLK_LEFT:
+                    man.x -= 10;
+                    break;
+                case SDLK_RIGHT:
+                    man.x += 10;
+                    break;
+            }
         }
     }
 }

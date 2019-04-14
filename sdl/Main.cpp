@@ -1,7 +1,7 @@
 #include "SDL.hpp"
 #include <iostream>
 
-const int SCREEN_WIDTH = 640;
+const int SCREEN_WIDTH = 840;
 const int SCREEN_HEIGHT = 480;
 bool isPlaying = true;
 
@@ -19,7 +19,8 @@ namespace KeySurfaces {
 SDLGlobals globals;
 SDLWindow window;
 SDLRenderer renderer;
-SDLTexture imageTexture;
+SDLTexture backgroundTexture;
+SDLTexture manTexture;
 
 SDL_Event event;
 
@@ -41,7 +42,8 @@ SDLTexture loadTexture(std::string path) {
     SDLSurface loadedSurface;
     loadedSurface.loadPNG(path);
     if ( loadedSurface.isLoaded() ) {
-        texture.load(renderer.createTextureFromSurface((SDL_Surface *) loadedSurface));
+        loadedSurface.setKeyColor(SDL_TRUE, SDL_MapRGB( loadedSurface.pixelFormat(), 0, 0xFF, 0xFF ));
+        texture.load(loadedSurface, renderer);
     }
 
     return texture;
@@ -57,7 +59,7 @@ bool init() {
             SCREEN_WIDTH, SCREEN_HEIGHT,
             SDL_WINDOW_SHOWN);
 
-        renderer.load((SDL_Window *) window, -1, SDL_RENDERER_ACCELERATED);
+        renderer.load(window, -1, SDL_RENDERER_ACCELERATED);
         renderer.setColor(0xFF, 0xFF, 0xFF, 0xFF);
     }
 
@@ -69,7 +71,8 @@ bool init() {
 bool load() {
     bool result = true;
 
-    imageTexture = loadTexture("assets/helloworld.png");
+    backgroundTexture = loadTexture("assets/landscape.png");
+    manTexture = loadTexture("assets/man.png");
 
     return result;
 }
@@ -78,6 +81,11 @@ void update() {
     renderer.setColor(0xFF, 0xFF, 0xFF);
     renderer.clear();
 
+    backgroundTexture.render();
+
+    manTexture.render(330, 290);
+
+/*
     SDL_Rect topLeftVp;
     topLeftVp.x = 0;
     topLeftVp.y = 0;
@@ -107,7 +115,7 @@ void update() {
     renderer.setViewPort(bottomVp);
 
     renderer.copyTexture(imageTexture);
-
+*/
     renderer.updateScreen();
 }
 

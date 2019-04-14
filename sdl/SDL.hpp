@@ -20,6 +20,9 @@ constexpr int CheckSDLError(int success, const char *message) {
     return success == 0;
 }
 
+class SDLSurface;
+class SDLRenderer;
+
 struct SDLGlobals {
 
     bool init(uint32_t init_flags) {
@@ -67,8 +70,6 @@ struct SDLGlobals {
     bool is_initialized = false;
 };
 
-class SDLSurface;
-
 class SDLWindow {
 
 public:
@@ -115,6 +116,8 @@ class SDLSurface {
 public:
     SDLSurface(SDL_Surface *surface) {
         m_surface = std::shared_ptr<SDL_Surface>(surface, SDL_FreeSurface);
+        m_width = surface->w;
+        m_height = surface->h;
     }
 
     SDLSurface() {}
@@ -135,6 +138,16 @@ public:
     void loadBMP(std::string filename);
     void loadPNG(std::string filename);
 
+    int setKeyColor(int flags, uint32_t color);
+
+    int getHeight() const {
+        return m_height;
+    }
+
+    int getWidth() const {
+        return m_width;
+    }
+
     /**
      * Convert the internal surface pixel format to the other surface's pixelformat
      */
@@ -146,16 +159,19 @@ public:
 
 private:
     std::shared_ptr<SDL_Surface> m_surface;
+    int m_width;
+    int m_height;
 };
 
 class SDLTexture {
 
 public:
-    SDLTexture() {
-        m_texture = nullptr;
-    }
+    SDLTexture() : m_texture(nullptr), m_renderer(nullptr), m_width(0), m_height(0) {}
 
-    void load(SDL_Texture *texture);
+    void load(SDL_Texture *texture, int w, int h, SDLRenderer &parent);
+    void load(SDL_Surface *surface, SDLRenderer &parent);
+    void load(SDLSurface &surface, SDLRenderer &parent);
+
     bool isLoaded();
 
     operator const SDL_Texture *() const {
@@ -166,8 +182,24 @@ public:
         return m_texture.get();
     }
 
+    int getHeight() const {
+        return m_height;
+    }
+
+    int getWidth() const {
+        return m_width;
+    }
+
+    void render(int x = 0, int y = 0) {
+        SDL_Rect quad = {x, y, m_width, m_height};
+        SDL_RenderCopy(m_renderer, m_texture.get(), nullptr, &quad);
+    }
+
 private:
     std::shared_ptr<SDL_Texture> m_texture;
+    SDL_Renderer *m_renderer;
+    int m_width;
+    int m_height;
 };
 
 class SDLRenderer {
@@ -186,6 +218,14 @@ public:
     void load(SDL_Window *window, int index, uint32_t rendererFlags) {
         m_renderer = std::shared_ptr<SDL_Renderer>(SDL_CreateRenderer(window, index, rendererFlags), SDL_DestroyRenderer);
         m_window_parent = window;
+        if (m_renderer == nullptr) {
+            std::cerr << "Error: Could not initialize renderer: " << SDL_GetError() << std::endl;
+        }
+    }
+
+    void load(SDLWindow &window, int index, uint32_t rendererFlags) {
+        m_renderer = std::shared_ptr<SDL_Renderer>(SDL_CreateRenderer((SDL_Window *) window, index, rendererFlags), SDL_DestroyRenderer);
+        m_window_parent = (SDL_Window *) window;
         if (m_renderer == nullptr) {
             std::cerr << "Error: Could not initialize renderer: " << SDL_GetError() << std::endl;
         }
@@ -263,8 +303,33 @@ private:
 
 // texture impl -------------------------------------------------------------------------------------
 
-void SDLTexture::load(SDL_Texture *texture) {
+void SDLTexture::load(SDL_Texture *texture, int width, int height, SDLRenderer &renderer) {
     m_texture = std::shared_ptr<SDL_Texture>(texture, SDL_DestroyTexture);
+    m_height = height;
+    m_width = width;
+    m_renderer = (SDL_Renderer *) renderer;
+    if (m_texture == nullptr) {
+        std::cerr << "Error: Could not load texture: " << SDL_GetError() << std::endl;
+    }
+}
+
+void SDLTexture::load(SDL_Surface *surface, SDLRenderer &renderer) {
+    SDL_Texture *newtexture = SDL_CreateTextureFromSurface((SDL_Renderer *) renderer, surface);
+    m_texture = std::shared_ptr<SDL_Texture>(newtexture, SDL_DestroyTexture);
+    m_renderer = (SDL_Renderer *) renderer;
+    m_height = surface->h;
+    m_width = surface->w;
+    if (m_texture == nullptr) {
+        std::cerr << "Error: Could not load texture: " << SDL_GetError() << std::endl;
+    }
+}
+
+void SDLTexture::load(SDLSurface &surface, SDLRenderer &renderer) {
+    SDL_Texture *newtexture = SDL_CreateTextureFromSurface((SDL_Renderer *) renderer, (SDL_Surface *) surface);
+    m_texture = std::shared_ptr<SDL_Texture>(newtexture, SDL_DestroyTexture);
+    m_renderer = (SDL_Renderer *) renderer;
+    m_height = surface.getHeight();
+    m_width = surface.getWidth();
     if (m_texture == nullptr) {
         std::cerr << "Error: Could not load texture: " << SDL_GetError() << std::endl;
     }
@@ -279,7 +344,8 @@ bool SDLTexture::isLoaded() {
 
 void SDLSurface::load(SDL_Surface *suf) {
     m_surface = std::shared_ptr<SDL_Surface>(suf, SDL_FreeSurface);
-
+    m_height = suf->h;
+    m_width = suf->w;
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
     }
@@ -287,7 +353,8 @@ void SDLSurface::load(SDL_Surface *suf) {
 
 void SDLSurface::loadBMP(std::string filename) {
     m_surface = std::shared_ptr<SDL_Surface>(SDL_LoadBMP(filename.c_str()), SDL_FreeSurface);
-
+    m_height = m_surface->h;
+    m_width = m_surface->w;
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
     }
@@ -295,7 +362,8 @@ void SDLSurface::loadBMP(std::string filename) {
 
 void SDLSurface::loadPNG(std::string filename) {
     m_surface = std::shared_ptr<SDL_Surface>(IMG_Load(filename.c_str()), SDL_FreeSurface);
-
+    m_height = m_surface->h;
+    m_width = m_surface->w;
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
     }
@@ -324,6 +392,10 @@ void SDLSurface::fill(int r, int g, int b) {
 uint32_t SDLSurface::rgbColor(int r, int g, int b) const {
     const SDL_PixelFormat *mapper = pixelFormat();
     return SDL_MapRGB(mapper, r, g, b);
+}
+
+int SDLSurface::setKeyColor(int flags, uint32_t color) {
+    return CheckSDLError(SDL_SetColorKey(m_surface.get(), flags, color), "Could not set key color");
 }
 
 // Window impl -------------------------------------------------------------------------------------

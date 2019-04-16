@@ -3,7 +3,7 @@ LIB_INCLUDES=-Llibs\SDL2-2.0.9\x86_64-w64-mingw32\lib -Llibs\SDL2_image-2.0.4\x8
 CXXFLAGS=-std=c++17 -Wall -g -Wextra ${HEADER_INCLUDES}
 LDLIBS=-lSDL2main -lSDL2 -lSDL2_image
 
-TARGET=test
+TARGET=game
 
 SRCS=Main.cpp
 HDRS=$(wildcard *.hpp)

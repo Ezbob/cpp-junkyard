@@ -12,9 +12,29 @@ SDLTexture manTexture;
 
 SDL_Event event;
 
+static void rect_lerp(SDL_Rect *out, const SDL_Rect *start, const SDL_Rect *end, float f = 0) {
+    float t = 1.0f - f;
+    out->x = (float)start->x * t + (float)end->x * f;
+    out->y = (float)start->y * t + (float)end->y * f;
+}
+
+struct Clock {
+    uint64_t NOW = SDL_GetPerformanceCounter();
+    uint64_t LAST = 0;
+    double deltaTime = 0;
+
+    void tick() {
+        LAST = NOW;
+        NOW = SDL_GetPerformanceCounter();
+        deltaTime = (NOW - LAST) * 1000 / (double) SDL_GetPerformanceFrequency();
+    }
+} clock;
+
+
 struct Man {
-    int x = 330;
-    int y = 290;
+    double x = 330;
+    double y = 290;
+    int moveDirection = 0;
 } man;
 
 SDLSurface loadSurface(std::string path) {
@@ -45,7 +65,7 @@ SDLTexture loadTexture(std::string path) {
 bool init() {
     bool result = true;
 
-    if ( globals.init(SDL_INIT_VIDEO) ) {
+    if ( globals.init(SDL_INIT_VIDEO | SDL_INIT_TIMER) ) {
         globals.loadExternLib(SDLExternLibs::SDL_IMAGE, IMG_INIT_PNG);
         window.loadWindow("SDL Tutorial", 
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -54,6 +74,7 @@ bool init() {
 
         renderer.load(window, -1, SDL_RENDERER_ACCELERATED);
         renderer.setColor(0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest"); // basically the anti-aliasing
     }
 
     result = globals.is_initialized && window.isLoaded();
@@ -71,6 +92,13 @@ bool load() {
 }
 
 void update() {
+
+    if ( man.moveDirection > 0 ) {
+        man.x += (1. * clock.deltaTime);
+    } else if (man.moveDirection < 0) {
+        man.x -= (1. * clock.deltaTime);
+    }
+
     renderer.setColor(0xFF, 0xFF, 0xFF);
     renderer.clear();
 
@@ -88,10 +116,17 @@ void handleInput() {
         } else if ( event.type == SDL_KEYDOWN ) {
             switch ( event.key.keysym.sym ) {
                 case SDLK_LEFT:
-                    man.x -= 10;
+                    man.moveDirection = -1;
                     break;
                 case SDLK_RIGHT:
-                    man.x += 10;
+                    man.moveDirection = 1;
+                    break;
+            }
+        } else if ( event.type == SDL_KEYUP ) {
+            switch ( event.key.keysym.sym ) {
+                case SDLK_LEFT:
+                case SDLK_RIGHT:
+                    man.moveDirection = 0;
                     break;
             }
         }
@@ -102,8 +137,11 @@ int WinMain() {
 
     if ( init() && load() ) {
         while ( globals.is_playing ) {
+
             handleInput();
             update();
+
+            clock.tick();
         }
     }
 

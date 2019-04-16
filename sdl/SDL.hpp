@@ -191,7 +191,12 @@ public:
 
     void render(int x = 0, int y = 0) {
         SDL_Rect quad = {x, y, m_width, m_height};
-        SDL_RenderCopy(m_renderer, m_texture.get(), nullptr, &quad);
+        CheckSDLError(SDL_RenderCopy(m_renderer, m_texture.get(), nullptr, &quad), "Cloud not render texture");
+    }
+
+    void render(int x, int y, SDL_Rect &clip) {
+        SDL_Rect quad = {x, y, clip.w, clip.h};
+        CheckSDLError(SDL_RenderCopy(m_renderer, m_texture.get(), &clip, &quad), "Cloud not render clip texture");
     }
 
 private:

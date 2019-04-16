@@ -7,10 +7,13 @@ const int SCREEN_HEIGHT = 480;
 SDLGlobals globals;
 SDLWindow window;
 SDLRenderer renderer;
-SDLTexture backgroundTexture;
-SDLTexture manTexture;
 
 SDL_Event event;
+SDL_Rect spriteClips[4];
+
+SDLTexture backgroundTexture(renderer);
+SDLTexture manTexture(renderer);
+SDLTexture ballsTexture(renderer);
 
 static void rect_lerp(SDL_Rect *out, const SDL_Rect *start, const SDL_Rect *end, float f = 0) {
     float t = 1.0f - f;
@@ -50,13 +53,13 @@ SDLSurface loadSurface(std::string path) {
 }
 
 SDLTexture loadTexture(std::string path) {
-    SDLTexture texture;
+    SDLTexture texture(renderer);
 
     SDLSurface loadedSurface;
     loadedSurface.loadPNG(path);
     if ( loadedSurface.isLoaded() ) {
         loadedSurface.setKeyColor(SDL_TRUE, SDL_MapRGB( loadedSurface.pixelFormat(), 0, 0xFF, 0xFF ));
-        texture.load(loadedSurface, renderer);
+        texture.load(loadedSurface);
     }
 
     return texture;
@@ -87,6 +90,27 @@ bool load() {
 
     backgroundTexture = loadTexture("assets/landscape.png");
     manTexture = loadTexture("assets/man.png");
+    ballsTexture = loadTexture("assets/balls.png");
+
+    spriteClips[0].x = 0;
+    spriteClips[0].y = 0;
+    spriteClips[0].w = 32;
+    spriteClips[0].h = 32;
+
+    spriteClips[1].x = 32;
+    spriteClips[1].y = 0;
+    spriteClips[1].w = 32;
+    spriteClips[1].h = 32;
+
+    spriteClips[2].x = 0;
+    spriteClips[2].y = 32;
+    spriteClips[2].w = 32;
+    spriteClips[2].h = 32;
+
+    spriteClips[2].x = 32;
+    spriteClips[2].y = 32;
+    spriteClips[2].w = 32;
+    spriteClips[2].h = 32;
 
     return result;
 }
@@ -105,6 +129,14 @@ void update() {
     backgroundTexture.render();
 
     manTexture.render(man.x, man.y);
+
+    ballsTexture.render(0, 0, spriteClips[0]);
+
+    ballsTexture.render(SCREEN_WIDTH - spriteClips[1].w, 0, spriteClips[1]);
+
+    ballsTexture.render(0, SCREEN_HEIGHT - spriteClips[2].h, spriteClips[2]);
+
+    ballsTexture.render(SCREEN_WIDTH - spriteClips[3].w, SCREEN_HEIGHT - spriteClips[3].h, spriteClips[3]);
 
     renderer.updateScreen();
 }

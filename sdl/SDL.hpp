@@ -93,11 +93,11 @@ public:
 
     SDLWindow() {}
 
-    operator const SDL_Window *const() const {
+    operator const SDL_Window *() const {
         return m_window;
     }
 
-    explicit operator SDL_Window *() const {
+    explicit operator SDL_Window *() {
         return m_window;
     }
 
@@ -143,7 +143,7 @@ public:
 
     bool isLoaded();
 
-    operator const SDL_Renderer *const() const {
+    operator const SDL_Renderer *() const {
         return m_renderer.get();
     }
 

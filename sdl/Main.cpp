@@ -1,4 +1,5 @@
 #include "SDL.hpp"
+#include "Animator.hpp"
 #include <iostream>
 
 const int SCREEN_WIDTH = 840;
@@ -9,18 +10,11 @@ SDLWindow window;
 SDLRenderer renderer;
 
 SDL_Event event;
-SDL_Rect spriteClips[4];
+SpriteAnimator<4> animation {renderer, 64, 205};
 
 SDLTexture fooTexture(renderer);
-
-int frame = 0;
-
-
 SDLTexture backgroundTexture(renderer);
-/*
-SDLTexture manTexture(renderer);
-SDLTexture ballsTexture(renderer);
-*/
+
 /*
 static void rect_lerp(SDL_Rect *out, const SDL_Rect *start, const SDL_Rect *end, float f = 0) {
     float t = 1.0f - f;
@@ -97,126 +91,32 @@ bool load() {
 
     fooTexture = loadTexture("assets/foo.png");
 
-    spriteClips[0].x = 0;
-    spriteClips[0].y = 0;
-    spriteClips[0].w = 64;
-    spriteClips[0].h = 205;
-
-    spriteClips[1].x = 64;
-    spriteClips[1].y = 0;
-    spriteClips[1].w = 64;
-    spriteClips[1].h = 205;
-
-    spriteClips[2].x = 128;
-    spriteClips[2].y = 0;
-    spriteClips[2].w = 64;
-    spriteClips[2].h = 205;
-
-    spriteClips[3].x = 196;
-    spriteClips[3].y = 0;
-    spriteClips[3].w = 64;
-    spriteClips[3].h = 205;
-
-
+    if ( fooTexture.isLoaded() ) {
+        animation.load(fooTexture);
+        animation.run();
+    }
 
     backgroundTexture = loadTexture("assets/landscape.png");
-/*
-    manTexture = loadTexture("assets/man.png");
-    ballsTexture = loadTexture("assets/balls.png");
-
-    spriteClips[0].x = 0;
-    spriteClips[0].y = 0;
-    spriteClips[0].w = 32;
-    spriteClips[0].h = 32;
-
-    spriteClips[1].x = 32;
-    spriteClips[1].y = 0;
-    spriteClips[1].w = 32;
-    spriteClips[1].h = 32;
-
-    spriteClips[2].x = 0;
-    spriteClips[2].y = 32;
-    spriteClips[2].w = 32;
-    spriteClips[2].h = 32;
-
-    spriteClips[2].x = 32;
-    spriteClips[2].y = 32;
-    spriteClips[2].w = 32;
-    spriteClips[2].h = 32;
-
-    return backgroundTexture.isLoaded() && manTexture.isLoaded() && ballsTexture.isLoaded();
-*/
 
     return fooTexture.isLoaded();
 }
 
 void update() {
 
-    SDL_Rect *currentClip = spriteClips + (frame / 16);
-
     backgroundTexture.render();
 
-    fooTexture.render((SCREEN_WIDTH - currentClip->w) / 2, (SCREEN_HEIGHT - currentClip->h) / 2, *currentClip);
-
-    /*
-
-    if ( man.moveDirection > 0 ) {
-        man.x += (1. * clock.deltaTime);
-    } else if (man.moveDirection < 0) {
-        man.x -= (1. * clock.deltaTime);
-    }
-
-    renderer.setColor(0xFF, 0xFF, 0xFF);
-    renderer.clear();
-
-
-
-    manTexture.render(man.x, man.y);
-
-    ballsTexture.render(0, 0, spriteClips[0]);
-
-    ballsTexture.render(SCREEN_WIDTH - spriteClips[1].w, 0, spriteClips[1]);
-
-    ballsTexture.render(0, SCREEN_HEIGHT - spriteClips[2].h, spriteClips[2]);
-
-    ballsTexture.render(SCREEN_WIDTH - spriteClips[3].w, SCREEN_HEIGHT - spriteClips[3].h, spriteClips[3]);
-
-
-    */
+    animation.render((SCREEN_WIDTH - animation.getSpriteWidth()) / 2, (SCREEN_HEIGHT - animation.getSpriteHeight()) / 2);
 
     renderer.updateScreen();
 
-    ++frame;
-
-    if (frame / 16 >= 4) {
-        frame = 0;
-    }
+    animation.tick();
 }
 
 void handleInput() {
     while ( SDL_PollEvent(&event) != 0 ) {
         if ( event.type == SDL_QUIT ) {
             globals.is_playing = false;
-        } 
-        /*
-        else if ( event.type == SDL_KEYDOWN ) {
-            switch ( event.key.keysym.sym ) {
-                case SDLK_LEFT:
-                    man.moveDirection = -1;
-                    break;
-                case SDLK_RIGHT:
-                    man.moveDirection = 1;
-                    break;
-            }
-        } else if ( event.type == SDL_KEYUP ) {
-            switch ( event.key.keysym.sym ) {
-                case SDLK_LEFT:
-                case SDLK_RIGHT:
-                    man.moveDirection = 0;
-                    break;
-            }
         }
-        */
     }
 }
 

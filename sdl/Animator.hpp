@@ -17,6 +17,8 @@ class SpriteSheetAnimator {
     bool is_running = false;
     bool is_loaded = false;
 
+    SDL_RendererFlip flip = SDL_FLIP_NONE;
+
     std::array<SDL_Rect, columns * rows> frames;
 
     void initFrames() {
@@ -70,7 +72,15 @@ public:
     }
 
     void render(int x, int y) {
-        spriteSheetTexture.render(x, y, frames[(currentFrame / framerate)]);
+        spriteSheetTexture.render(x, y, frames[(currentFrame / framerate)], flip);
+    }
+
+    void flipHorizontal() {
+        flip = SDL_FLIP_HORIZONTAL;
+    }
+    
+    void unflip() {
+        flip = SDL_FLIP_NONE;
     }
 
     void tick() {

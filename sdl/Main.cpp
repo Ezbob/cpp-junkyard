@@ -108,9 +108,12 @@ void update() {
 
     if (man.moveDirection == 1) {
         man.x = man.x + (0.4 * clock.deltaTime);
+        animation.flipHorizontal();
         animation.run();
+
     } else if (man.moveDirection == -1) {
         man.x = man.x - (0.4 * clock.deltaTime);
+        animation.unflip();
         animation.run();
     } else {
         animation.gotoFrame(0);

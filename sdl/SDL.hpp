@@ -247,6 +247,16 @@ public:
         CheckSDLError(SDL_RenderCopy(m_renderer, m_texture.get(), &clip, &quad), "Cloud not render clip texture");
     }
 
+    void render(int x, int y, SDL_Rect &clip, SDL_RendererFlip &flip) {
+        SDL_Rect quad = {x, y, clip.w, clip.h};
+        CheckSDLError(SDL_RenderCopyEx(m_renderer, m_texture.get(), &clip, &quad, 0, nullptr, flip), "Cloud not render clip texture");
+    }
+
+    void render(int x, int y, SDL_RendererFlip &flip) {
+        SDL_Rect quad = {x, y, m_width, m_height};
+        CheckSDLError(SDL_RenderCopyEx(m_renderer, m_texture.get(), nullptr, &quad, 0, nullptr, flip), "Cloud not render clip texture");
+    }
+
 private:
     std::shared_ptr<SDL_Texture> m_texture;
     SDL_Renderer *m_renderer;

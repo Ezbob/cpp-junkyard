@@ -106,6 +106,17 @@ void update() {
 
     animation.render(man.x, man.y);
 
+    if (man.moveDirection == 1) {
+        man.x = man.x + (0.4 * clock.deltaTime);
+        animation.run();
+    } else if (man.moveDirection == -1) {
+        man.x = man.x - (0.4 * clock.deltaTime);
+        animation.run();
+    } else {
+        animation.gotoFrame(0);
+        animation.stop();
+    }
+
     renderer.updateScreen();
 
     animation.tick();
@@ -115,6 +126,26 @@ void handleInput() {
     while ( SDL_PollEvent(&event) != 0 ) {
         if ( event.type == SDL_QUIT ) {
             globals.is_playing = false;
+        } else if (event.type == SDL_KEYDOWN) {
+            switch (event.key.keysym.sym) {
+                case SDLK_LEFT:
+                    man.moveDirection = -1;
+                    break;
+                case SDLK_RIGHT:
+                    man.moveDirection = 1;
+                    break;
+                default:
+                    break;
+            }
+        } else if (event.type == SDL_KEYUP) {
+            switch (event.key.keysym.sym) {
+                case SDLK_LEFT:
+                case SDLK_RIGHT:
+                    man.moveDirection = 0;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

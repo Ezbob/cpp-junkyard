@@ -35,10 +35,9 @@ struct Clock {
     }
 } clock;
 
-
 struct Man {
     double x = 330;
-    double y = 290;
+    double y = 250;
     int moveDirection = 0;
 } man;
 
@@ -105,7 +104,7 @@ void update() {
 
     backgroundTexture.render();
 
-    animation.render((SCREEN_WIDTH - animation.getSpriteWidth()) / 2, (SCREEN_HEIGHT - animation.getSpriteHeight()) / 2);
+    animation.render(man.x, man.y);
 
     renderer.updateScreen();
 

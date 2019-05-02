@@ -8,7 +8,7 @@ template<int columns, int rows>
 class SpriteSheetAnimator {
 
     SDLTexture spriteSheetTexture;
-    int frame;
+    int currentFrame;
     int sprite_width;
     int sprite_height;
     int framerate;
@@ -19,13 +19,7 @@ class SpriteSheetAnimator {
 
     std::array<SDL_Rect, columns * rows> frames;
 
-public:
-    SpriteSheetAnimator(SDLTexture spriteSheet, int sprite_width, int sprite_height, int framerate = 16) : 
-        spriteSheetTexture(std::move(spriteSheet)),
-        frame(0), sprite_width(sprite_width),
-        sprite_height(sprite_height),
-        framerate(framerate) {
-
+    void initFrames() {
         int frame_index = 0;
         for (int j = 0; j < rows; ++j) {
             for (int i = 0; i < columns; ++i) {
@@ -36,20 +30,26 @@ public:
                 frame_index++;
             }
         }
+    }
+
+public:
+    SpriteSheetAnimator(SDLTexture spriteSheet, int sprite_width, int sprite_height, int framerate = 16) : 
+        spriteSheetTexture(std::move(spriteSheet)),
+        currentFrame(0), sprite_width(sprite_width),
+        sprite_height(sprite_height),
+        framerate(framerate) {
+
+        initFrames();
         is_loaded = true;
     }
 
     SpriteSheetAnimator(SDLRenderer &renderer, int sprite_width, int sprite_height, int framerate = 16) : 
         spriteSheetTexture(renderer),
-        frame(0), sprite_width(sprite_width),
+        currentFrame(0), sprite_width(sprite_width),
         sprite_height(sprite_height),
         framerate(framerate) {
-        for (int i = 0; i < numberOfFrames; ++i) {
-            frames[i].x = sprite_width * i;
-            frames[i].y = 0;
-            frames[i].w = sprite_width;
-            frames[i].h = sprite_height;
-        }
+
+        initFrames();
     }
 
     void load(SDLTexture spriteSheet) {
@@ -70,15 +70,15 @@ public:
     }
 
     void render(int x, int y) {
-        spriteSheetTexture.render(x, y, frames[(frame / framerate)]);
+        spriteSheetTexture.render(x, y, frames[(currentFrame / framerate)]);
     }
 
     void tick() {
         if (is_running) {
-            ++frame;
+            ++currentFrame;
 
-            if (frame / framerate >= numberOfFrames) {
-                frame = 0;
+            if (currentFrame / framerate >= numberOfFrames) {
+                currentFrame = 0;
             }
         }
     }
@@ -93,6 +93,12 @@ public:
 
     bool isRunning() const {
         return is_running;
+    }
+
+    void gotoFrame(int index) {
+        if (index >= 0 && index < numberOfFrames) {
+            currentFrame = index;
+        }
     }
 };
 

@@ -4,39 +4,47 @@
 #include "SDL.hpp"
 #include <array>
 
-template<int numbframes>
-class SpriteAnimator {
+template<int columns, int rows>
+class SpriteSheetAnimator {
 
     SDLTexture spriteSheetTexture;
     int frame;
     int sprite_width;
     int sprite_height;
     int framerate;
+    int numberOfFrames = columns * rows;
+
     bool is_running = false;
     bool is_loaded = false;
-    std::array<SDL_Rect, numbframes> frames;
+
+    std::array<SDL_Rect, columns * rows> frames;
 
 public:
-    SpriteAnimator(SDLTexture spriteSheet, int sprite_width, int sprite_height, int framerate = 16) : 
+    SpriteSheetAnimator(SDLTexture spriteSheet, int sprite_width, int sprite_height, int framerate = 16) : 
         spriteSheetTexture(std::move(spriteSheet)),
         frame(0), sprite_width(sprite_width),
         sprite_height(sprite_height),
         framerate(framerate) {
-        for (int i = 0; i < numbframes; ++i) {
-            frames[i].x = sprite_width * i;
-            frames[i].y = 0;
-            frames[i].w = sprite_width;
-            frames[i].h = sprite_height;
+
+        int frame_index = 0;
+        for (int j = 0; j < rows; ++j) {
+            for (int i = 0; i < columns; ++i) {
+                frames[frame_index].x = sprite_width * i;
+                frames[frame_index].y = sprite_height * j;
+                frames[frame_index].w = sprite_width;
+                frames[frame_index].h = sprite_height;
+                frame_index++;
+            }
         }
         is_loaded = true;
     }
 
-    SpriteAnimator(SDLRenderer &renderer, int sprite_width, int sprite_height, int framerate = 16) : 
+    SpriteSheetAnimator(SDLRenderer &renderer, int sprite_width, int sprite_height, int framerate = 16) : 
         spriteSheetTexture(renderer),
         frame(0), sprite_width(sprite_width),
         sprite_height(sprite_height),
         framerate(framerate) {
-        for (int i = 0; i < numbframes; ++i) {
+        for (int i = 0; i < numberOfFrames; ++i) {
             frames[i].x = sprite_width * i;
             frames[i].y = 0;
             frames[i].w = sprite_width;
@@ -69,7 +77,7 @@ public:
         if (is_running) {
             ++frame;
 
-            if (frame / framerate >= (int) frames.size()) {
+            if (frame / framerate >= numberOfFrames) {
                 frame = 0;
             }
         }

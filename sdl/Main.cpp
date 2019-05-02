@@ -10,7 +10,7 @@ SDLWindow window;
 SDLRenderer renderer;
 
 SDL_Event event;
-SpriteAnimator<4> animation {renderer, 64, 205};
+SpriteSheetAnimator<4, 1> animation {renderer, 64, 205};
 
 SDLTexture fooTexture(renderer);
 SDLTexture backgroundTexture(renderer);

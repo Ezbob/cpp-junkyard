@@ -3,33 +3,23 @@
 
 #include <map>
 #include <vector>
-#include <memory>
 #include <functional>
-#include <utility>
 
 template<typename... Args>
 class SignalSlot {
-    using Function_t = std::function<void(Args...)>;
-    std::map<std::string, std::vector<Function_t>> slots;
+
+    std::map<std::string, std::vector<std::function<void(Args...)>>> slots;
 
 public:
 
     SignalSlot() {}
     ~SignalSlot() = default;
 
-    void bind(std::string name, Function_t&& funct) {
-        auto it = slots.find(name);
-
-        if (it != slots.end()) {
-            auto slot = it->second;
-            slot.emplace_back(std::forward<Function_t>(funct));
-        } else {
-            std::vector<Function_t> v { std::forward<Function_t>(funct) };
-            slots.emplace(std::make_pair(name, v));
-        }
+    void bind(const std::string name, const std::function<void(Args...)>&& funct) {
+        slots[name].emplace_back(funct);
     }
 
-    void emit(std::string name, Args&&... args) {
+    void emit(const std::string name, Args&&... args) const {
         auto it = slots.find(name);
         if (it != slots.end()) {
             auto functions = it->second;

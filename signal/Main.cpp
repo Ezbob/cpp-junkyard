@@ -46,14 +46,19 @@ int main() {
     B b1("B1");
     B b2("B2");
 
+
     g_sig.emit("fix");
 
     SignalSlot<int> sig1;
 
     std::string buffer = "hello";
 
-    sig1.bind("fun", [&buffer](int a) {
+    auto id1 = sig1.bind("fun", [&buffer](int a) {
         buffer += " would " + std::to_string(a);
+    });
+
+    sig1.bind("fun", [&buffer](int a) {
+        buffer += " not " + std::to_string(a);
     });
 
     std::cout << buffer << std::endl;
@@ -65,6 +70,12 @@ int main() {
     sig1.emit("fun", 10);
 
     sig1.emit("no", 0);
+
+    std::cout << buffer << std::endl;
+
+    sig1.unbind("fun", id1);
+
+    sig1.emit("fun", 10);
 
     std::cout << buffer << std::endl;
 

@@ -7,27 +7,42 @@
 
 template<typename... Args>
 class SignalSlot {
-
-    std::map<std::string, std::vector<std::function<void(Args...)>>> slots;
+    std::map<std::string, std::map<uint64_t, std::function<void(Args...)>>> slots;
 
 public:
 
     SignalSlot() {}
     ~SignalSlot() = default;
 
-    void bind(const std::string name, const std::function<void(Args...)>&& funct) {
-        slots[name].emplace_back(funct);
+    uint64_t bind(const std::string name, const std::function<void(Args...)>&& funct) {
+        static uint64_t id_counter = 0;
+        slots[name].emplace(std::pair<uint64_t, std::function<void(Args...)>>(id_counter, funct));
+        return id_counter++;
     }
 
     void emit(const std::string name, Args&&... args) const {
         auto it = slots.find(name);
         if (it != slots.end()) {
-            auto functions = it->second;
-            for (auto &func : functions) {
-                func(std::forward<Args>(args)...);
+            auto callback_map = it->second;
+            for (auto &item : callback_map) {
+                item.second(std::forward<Args>(args)...);
             }
         }
     }
+
+    void unbindAll(const std::string name) {
+        slots.erase(name);
+    }
+
+    void unbind(const std::string name, const uint64_t callback_id) {
+        auto it = slots.find(name);
+
+        if (it != slots.end()) {
+            auto &callback_map = it->second;
+            callback_map.erase(callback_id);
+        }
+    }
+
 };
 
 #endif

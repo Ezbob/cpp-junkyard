@@ -1,6 +1,7 @@
 #include "SDL.hpp"
 #include "Animator.hpp"
 #include <iostream>
+#include <cmath>
 
 const int SCREEN_WIDTH = 840;
 const int SCREEN_HEIGHT = 480;
@@ -38,6 +39,7 @@ struct Clock {
 struct Man {
     double x = 330;
     double y = 250;
+    double speed = 0;
     int moveDirection = 0;
 } man;
 
@@ -106,13 +108,24 @@ void update() {
 
     animation.render(man.x, man.y);
 
+    if (man.moveDirection != 0) {
+        man.speed += 0.3 * clock.deltaTime;
+    } else {
+        man.speed -= 0.1 * clock.deltaTime;
+    }
+
+    if (man.speed < 0.0f) {
+        man.speed = 0.0f;
+    } else if ( man.speed >= 1.0f ) {
+        man.speed = 1.0f;
+    }
+
     if (man.moveDirection == 1) {
-        man.x = man.x + (0.4 * clock.deltaTime);
+        man.x += man.speed;
         animation.flipHorizontal();
         animation.run();
-
     } else if (man.moveDirection == -1) {
-        man.x = man.x - (0.4 * clock.deltaTime);
+        man.x -= man.speed;
         animation.unflip();
         animation.run();
     } else {

@@ -1,4 +1,9 @@
-#include "SDL.hpp"
+#include "SDL.h"
+#include "SDL2cpp/Texture.hpp"
+#include <memory>
+
+SDLTexture::SDLTexture(SDLRenderer &renderer) : m_texture(nullptr), m_renderer((SDL_Renderer *) renderer), m_width(0), m_height(0) {}
+SDLTexture::SDLTexture(SDL_Renderer *renderer) : m_texture(nullptr), m_renderer(renderer), m_width(0), m_height(0) {}
 
 void SDLTexture::load(SDL_Texture *texture, int width, int height) {
     m_texture = std::shared_ptr<SDL_Texture>(texture, SDL_DestroyTexture);

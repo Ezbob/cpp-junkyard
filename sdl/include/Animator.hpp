@@ -1,7 +1,7 @@
 #ifndef ANIMATOR_H_dbc46f9133f3f0f7103ecf9fae61de05
 #define ANIMATOR_H_dbc46f9133f3f0f7103ecf9fae61de05
 
-#include "SDL.hpp"
+#include "SDL2cpp/Texture.hpp"
 #include <array>
 
 template<int columns, int rows>

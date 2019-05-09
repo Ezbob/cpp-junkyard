@@ -1,6 +1,17 @@
-#include "SDL.hpp"
+#include "SDL2cpp/Renderer.hpp"
+#include "SDL2cpp/Texture.hpp"
+#include "SDL2cpp/ErrorCheck.hpp"
 #include "SDL.h"
 #include <memory>
+
+SDLRenderer::SDLRenderer(SDL_Window *window, int index, uint32_t rendererFlags) {
+    m_renderer = std::shared_ptr<SDL_Renderer>(SDL_CreateRenderer(window, index, rendererFlags), SDL_DestroyRenderer);
+    m_window_parent = window;
+
+    CheckSDLNullError(m_renderer.get(), "Could not initialize renderer");
+}
+
+SDLRenderer::SDLRenderer() {}
 
 void SDLRenderer::load(SDL_Window *window, int index, uint32_t rendererFlags) {
     m_renderer = std::shared_ptr<SDL_Renderer>(SDL_CreateRenderer(window, index, rendererFlags), SDL_DestroyRenderer);

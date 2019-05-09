@@ -16,6 +16,7 @@ set(SOURCES
     src/SDL2cpp/Texture.cpp
     src/SDL2cpp/Window.cpp
     src/SDL2cpp/Surface.cpp
+    src/SDL2cpp/Globals.cpp
 )
 
 set(INCLUDE_DIRS

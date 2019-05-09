@@ -1,4 +1,15 @@
-#include "SDL.hpp"
+#include <iostream>
+#include "SDL_image.h"
+#include "SDL2cpp/ErrorCheck.hpp"
+#include "SDL2cpp/Surface.hpp"
+
+SDLSurface::SDLSurface(SDL_Surface *surface) {
+    m_surface = std::shared_ptr<SDL_Surface>(surface, SDL_FreeSurface);
+    m_width = surface->w;
+    m_height = surface->h;
+}
+
+SDLSurface::SDLSurface() {}
 
 void SDLSurface::load(SDL_Surface *suf) {
     m_surface = std::shared_ptr<SDL_Surface>(suf, SDL_FreeSurface);

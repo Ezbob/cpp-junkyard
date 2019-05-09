@@ -68,6 +68,14 @@ SDLTexture loadTexture(std::string path) {
     return texture;
 }
 
+SDLTexture loadTextTexture(std::string path, SDL_Color textColor) {
+
+    SDLTexture texture(renderer);
+
+    
+
+    return texture;
+}
 
 
 bool init() {

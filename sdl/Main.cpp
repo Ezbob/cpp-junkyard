@@ -75,6 +75,7 @@ bool init() {
 
     if ( globals.init(SDL_INIT_VIDEO | SDL_INIT_TIMER) ) {
         globals.loadExternLib(SDLExternLibs::SDL_IMAGE, IMG_INIT_PNG);
+        globals.loadExternLib(SDLExternLibs::SDL_TTF);
         window.loadWindow("SDL Tutorial", 
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             SCREEN_WIDTH, SCREEN_HEIGHT,

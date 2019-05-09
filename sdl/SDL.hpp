@@ -194,6 +194,7 @@ public:
     void load(SDL_Surface *suf);
     void loadBMP(std::string filename);
     void loadPNG(std::string filename);
+    void loadSolidText(std::string text, TTF_Font &font, SDL_Color color = {0, 0, 0});
 
     int setKeyColor(int flags, uint32_t color);
 
@@ -316,29 +317,42 @@ bool SDLTexture::isLoaded() {
 
 void SDLSurface::load(SDL_Surface *suf) {
     m_surface = std::shared_ptr<SDL_Surface>(suf, SDL_FreeSurface);
-    m_height = suf->h;
-    m_width = suf->w;
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
+        return;
     }
+    m_height = m_surface->h;
+    m_width = m_surface->w;
 }
 
 void SDLSurface::loadBMP(std::string filename) {
     m_surface = std::shared_ptr<SDL_Surface>(SDL_LoadBMP(filename.c_str()), SDL_FreeSurface);
-    m_height = m_surface->h;
-    m_width = m_surface->w;
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
+        return;
     }
+    m_height = m_surface->h;
+    m_width = m_surface->w;
 }
 
 void SDLSurface::loadPNG(std::string filename) {
     m_surface = std::shared_ptr<SDL_Surface>(IMG_Load(filename.c_str()), SDL_FreeSurface);
-    m_height = m_surface->h;
-    m_width = m_surface->w;
     if (m_surface == nullptr) {
         std::cerr << "Error: Surface could not be initialize: " << SDL_GetError() << std::endl;
+        return;
     }
+    m_height = m_surface->h;
+    m_width = m_surface->w;
+}
+
+void SDLSurface::loadSolidText(std::string text, TTF_Font &font, SDL_Color color) {
+    m_surface = std::shared_ptr<SDL_Surface>(TTF_RenderText_Solid(&font, text.c_str(), color));
+    if (m_surface == nullptr) {
+        std::cerr << "Error: Surface could not be initialize: " << TTF_GetError() << std::endl;
+        return;
+    }
+    m_height = m_surface->h;
+    m_width = m_surface->w;
 }
 
 void SDLSurface::convertToFormat(const SDLSurface &other) {

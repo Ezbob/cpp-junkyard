@@ -3,13 +3,14 @@
 
 #include "SDL.h"
 #include "SDL_image.h"
-//#include "SDL_tff.h"
+#include "SDL_ttf.h"
 #include <iostream>
 #include <cstddef>
 #include <memory>
 
 enum class SDLExternLibs {
     SDL_IMAGE = 1,
+    SDL_TTF
 };
 
 constexpr int CheckSDLError(int success, const char *message) {
@@ -42,6 +43,15 @@ struct SDLGlobals {
             case SDLExternLibs::SDL_IMAGE:
                 if ( !( IMG_Init(libFlags) & libFlags ) ) { // IMG_Init returns the flags set
                     std::cerr << "Error: Could not initialize SDL_Image: " << IMG_GetError() << std::endl;
+                    is_initialized = false;
+                } else {
+                    is_initialized = is_initialized && true;
+                }
+                break;
+            case SDLExternLibs::SDL_TTF:
+                if ( TTF_Init() == -1 ) { // IMG_Init returns the flags set
+                    std::cerr << "Error: Could not initialize SDL_TFF: " << TTF_GetError() << std::endl;
+                    is_initialized = false;
                 } else {
                     is_initialized = is_initialized && true;
                 }

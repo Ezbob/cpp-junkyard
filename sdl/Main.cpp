@@ -68,6 +68,8 @@ SDLTexture loadTexture(std::string path) {
     return texture;
 }
 
+
+
 bool init() {
     bool result = true;
 

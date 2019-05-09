@@ -21,10 +21,17 @@ set(SDL_INCLUDE_DIRS
 set(SDL_LINK_DIRS
     "${PROJECT_SOURCE_DIR}/libs/SDL2-2.0.9/x86_64-w64-mingw32/lib"
     "${PROJECT_SOURCE_DIR}/libs/SDL2_image-2.0.4/x86_64-w64-mingw32/lib"
+    "${PROJECT_SOURCE_DIR}/libs/SDL2_ttf-2.0.15/x86_64-w64-mingw32/lib"
+)
+
+SET(SDL_LIBS
+    SDL2
+    SDL2_image
+    SDL2_ttf
 )
 
 add_executable(${EXEC} ${SOURCES})
 
 target_link_directories(${EXEC} PRIVATE ${SDL_LINK_DIRS})
-target_link_libraries(${EXEC} SDL2 SDL2_image)
+target_link_libraries(${EXEC} PRIVATE ${SDL_LIBS})
 target_include_directories(${EXEC} PRIVATE ${SDL_INCLUDE_DIRS})

@@ -35,10 +35,10 @@ public:
         return m_width;
     }
 
-    void render(int x = 0, int y = 0);
-    void render(int x, int y, SDL_Rect &clip);
-    void render(int x, int y, SDL_Rect &clip, SDL_RendererFlip &flip);
-    void render(int x, int y, SDL_RendererFlip &flip);
+    void render(const int x = 0, const int y = 0);
+    void render(const int x, const int y, const SDL_Rect &clip);
+    void render(const int x, const int y, const SDL_Rect &clip, SDL_RendererFlip &flip);
+    void render(const int x, const int y, SDL_RendererFlip &flip);
 
 private:
     std::shared_ptr<SDL_Texture> m_texture;

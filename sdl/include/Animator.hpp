@@ -71,7 +71,7 @@ public:
         is_running = false;
     }
 
-    void render(int x, int y) {
+    void render(const int x, const int y) {
         spriteSheetTexture.render(x, y, frames[(currentFrame / framerate)], flip);
     }
 

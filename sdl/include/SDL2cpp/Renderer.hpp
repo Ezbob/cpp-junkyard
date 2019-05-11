@@ -31,6 +31,11 @@ public:
 
     bool isLoaded();
 
+    /**
+     * Factory method for creating new textures
+     */
+    SDLTexture makeTexture();
+
     operator const SDL_Renderer *() const {
         return m_renderer.get();
     }

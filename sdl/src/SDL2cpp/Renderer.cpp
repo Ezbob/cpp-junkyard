@@ -84,3 +84,7 @@ bool SDLRenderer::setViewPort(SDL_Rect &rect) {
 bool SDLRenderer::isLoaded() { 
     return m_renderer != nullptr;
 }
+
+SDLTexture SDLRenderer::makeTexture() {
+    return SDLTexture(m_renderer.get());
+}

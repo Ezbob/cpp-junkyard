@@ -13,8 +13,8 @@ SDLRenderer renderer;
 SDL_Event event;
 SpriteSheetAnimator<4, 1> animation {renderer, 64, 205};
 
-SDLTexture fooTexture(renderer);
-SDLTexture backgroundTexture(renderer);
+SDLTexture fooTexture = renderer.makeTexture();
+SDLTexture backgroundTexture = renderer.makeTexture();
 
 /*
 static void rect_lerp(SDL_Rect *out, const SDL_Rect *start, const SDL_Rect *end, float f = 0) {
@@ -56,7 +56,7 @@ SDLSurface loadSurface(std::string path) {
 }
 
 SDLTexture loadTexture(std::string path) {
-    SDLTexture texture(renderer);
+    SDLTexture texture = renderer.makeTexture();
 
     SDLSurface loadedSurface;
     loadedSurface.loadPNG(path);
@@ -69,10 +69,7 @@ SDLTexture loadTexture(std::string path) {
 }
 
 SDLTexture loadTextTexture(std::string path, SDL_Color textColor) {
-
-    SDLTexture texture(renderer);
-
-    
+    SDLTexture texture = renderer.makeTexture();
 
     return texture;
 }

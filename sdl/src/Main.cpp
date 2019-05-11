@@ -112,10 +112,6 @@ bool load() {
 
 void update() {
 
-    backgroundTexture.render();
-
-    animation.render(man.x, man.y);
-
     if (man.moveDirection != 0) {
         man.speed += 0.3 * clock.deltaTime;
     } else {
@@ -141,9 +137,13 @@ void update() {
         animation.stop();
     }
 
-    renderer.updateScreen();
-
     animation.tick();
+}
+
+void render() {
+    backgroundTexture.render();
+    animation.render(man.x, man.y);
+    renderer.updateScreen();
 }
 
 void handleInput() {
@@ -179,10 +179,11 @@ int WinMain() {
     if ( init() && load() ) {
         while ( globals.is_playing ) {
 
+            clock.tick();
+
             handleInput();
             update();
-
-            clock.tick();
+            render();
         }
     }
 

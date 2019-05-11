@@ -110,6 +110,15 @@ public:
             currentFrame = index;
         }
     }
+
+    int getFramerate() const {
+        return framerate;
+    }
+
+    void setFramerate(int framerate) {
+        framerate = framerate;
+    }
+
 };
 
 

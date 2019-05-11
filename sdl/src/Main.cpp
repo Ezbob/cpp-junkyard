@@ -11,7 +11,7 @@ SDLWindow window;
 SDLRenderer renderer;
 
 SDL_Event event;
-SpriteSheetAnimator<4, 1> animation {renderer, 64, 205};
+SpriteSheetAnimator<4, 1> animation {renderer, 64, 205, 50};
 
 SDLTexture fooTexture = renderer.makeTexture();
 SDLTexture backgroundTexture = renderer.makeTexture();
@@ -25,14 +25,16 @@ static void rect_lerp(SDL_Rect *out, const SDL_Rect *start, const SDL_Rect *end,
 */
 
 struct Clock {
-    uint64_t NOW = SDL_GetPerformanceCounter();
-    uint64_t LAST = 0;
-    double deltaTime = 0;
+    uint64_t now = SDL_GetPerformanceCounter();
+    uint64_t last = 0;
+    double elapsed = 0.0;
+    double lag = 0.0;
 
     void tick() {
-        LAST = NOW;
-        NOW = SDL_GetPerformanceCounter();
-        deltaTime = (NOW - LAST) * 1000 / (double) SDL_GetPerformanceFrequency();
+        last = now;
+        now = SDL_GetPerformanceCounter();
+        elapsed = (now - last) * 1000 / (double) SDL_GetPerformanceFrequency();
+        lag += elapsed;
     }
 } clock;
 
@@ -86,7 +88,7 @@ bool init() {
             SCREEN_WIDTH, SCREEN_HEIGHT,
             SDL_WINDOW_SHOWN);
 
-        renderer = window.getRenderer(-1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        renderer = window.getRenderer(-1, SDL_RENDERER_ACCELERATED);
         renderer.setColor(0xFF, 0xFF, 0xFF, 0xFF);
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest"); // basically the anti-aliasing
     }
@@ -112,24 +114,12 @@ bool load() {
 
 void update() {
 
-    if (man.moveDirection != 0) {
-        man.speed += 0.3 * clock.deltaTime;
-    } else {
-        man.speed -= 0.1 * clock.deltaTime;
-    }
-
-    if (man.speed < 0.0f) {
-        man.speed = 0.0f;
-    } else if ( man.speed >= 1.0f ) {
-        man.speed = 1.0f;
-    }
-
     if (man.moveDirection == 1) {
-        man.x += man.speed;
+        man.x += 1;
         animation.flipHorizontal();
         animation.run();
     } else if (man.moveDirection == -1) {
-        man.x -= man.speed;
+        man.x -= 1;
         animation.unflip();
         animation.run();
     } else {
@@ -174,15 +164,33 @@ void handleInput() {
     }
 }
 
+const double MS_PER_UPDATE = 2.0; 
+    // how much time the update step has been given (in ms)
+    // this parameter has to be minimized, but if it is too small
+    // then the game update (physics, AI, etc) will never catch up.
+
 int WinMain() {
+
 
     if ( init() && load() ) {
         while ( globals.is_playing ) {
 
             clock.tick();
-
             handleInput();
-            update();
+
+            while ( clock.lag >= MS_PER_UPDATE) {
+                update();
+                clock.lag -= MS_PER_UPDATE;
+            }
+
+            /*TODO
+            implement some kind of extrapolation between the
+            the such that the fixed deltatime simulation of the
+            update method and the rendering, such that animations 
+            appear smoother. The lag / MS_PER_UPDATE ratio marks 
+            how far we are into the next frame. [0,1)
+            */
+
             render();
         }
     }

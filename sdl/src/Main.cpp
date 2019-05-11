@@ -11,18 +11,23 @@ SDLWindow window;
 SDLRenderer renderer;
 
 SDL_Event event;
-SpriteSheetAnimator<4, 1> animation {renderer, 64, 205, 60};
+SpriteSheetAnimator<4, 1> animation {renderer, 64, 205};
 
-SDLTexture fooTexture = renderer.makeTexture();
-SDLTexture backgroundTexture = renderer.makeTexture();
+SDLTexture fooTexture = renderer.createTexture();
+SDLTexture backgroundTexture = renderer.createTexture();
 
-/*
-static void rect_lerp(SDL_Rect *out, const SDL_Rect *start, const SDL_Rect *end, float f = 0) {
+template<typename T>
+constexpr void lerp(T &out, const T &start, const T &end, float f = 0) {
     float t = 1.0f - f;
     out->x = (float)start->x * t + (float)end->x * f;
     out->y = (float)start->y * t + (float)end->y * f;
 }
-*/
+
+const double MS_PER_UPDATE = 15.0; 
+    // how much time the update step has been given (in ms)
+    // this parameter has to be minimized, but if it is too small
+    // then the game update (physics, AI, etc) will never catch up.
+    // Also > 0 value 
 
 struct Clock {
     uint64_t now = SDL_GetPerformanceCounter();
@@ -39,8 +44,8 @@ struct Clock {
 } clock;
 
 struct Man {
-    double x = 330;
-    double y = 250;
+    double x[2] = { 330, 330 }; // current and next x
+    double y[2] = { 250, 250 };
     double speed = 0;
     int moveDirection = 0;
 } man;
@@ -58,7 +63,7 @@ SDLSurface loadSurface(std::string path) {
 }
 
 SDLTexture loadTexture(std::string path) {
-    SDLTexture texture = renderer.makeTexture();
+    SDLTexture texture = renderer.createTexture();
 
     SDLSurface loadedSurface;
     loadedSurface.loadPNG(path);
@@ -71,7 +76,7 @@ SDLTexture loadTexture(std::string path) {
 }
 
 SDLTexture loadTextTexture(std::string path, SDL_Color textColor) {
-    SDLTexture texture = renderer.makeTexture();
+    SDLTexture texture = renderer.createTexture();
 
     return texture;
 }
@@ -115,11 +120,11 @@ bool load() {
 void update() {
 
     if (man.moveDirection == 1) {
-        man.x += 1;
+        man.x[1] = man.x[0] + 5.0;
         animation.flipHorizontal();
         animation.run();
     } else if (man.moveDirection == -1) {
-        man.x -= 1;
+        man.x[1] = man.x[0] - 5.0;
         animation.unflip();
         animation.run();
     } else {
@@ -130,9 +135,16 @@ void update() {
     animation.tick();
 }
 
+void extrapolate() {
+    double f = ( clock.lag / MS_PER_UPDATE );
+    double t = 1.0f - f;
+    man.x[0] = man.x[0] * t + man.x[1] * f;
+    man.y[0] = man.y[0] * t + man.y[1] * f;
+}
+
 void render() {
     backgroundTexture.render();
-    animation.render(man.x, man.y);
+    animation.render(man.x[0], man.y[0]);
     renderer.updateScreen();
 }
 
@@ -164,13 +176,8 @@ void handleInput() {
     }
 }
 
-const double MS_PER_UPDATE = 2.0; 
-    // how much time the update step has been given (in ms)
-    // this parameter has to be minimized, but if it is too small
-    // then the game update (physics, AI, etc) will never catch up.
 
 int WinMain() {
-
 
     if ( init() && load() ) {
         while ( globals.is_playing ) {
@@ -183,14 +190,7 @@ int WinMain() {
                 clock.lag -= MS_PER_UPDATE;
             }
 
-            /*TODO
-            implement some kind of extrapolation between the
-            the such that the fixed deltatime simulation of the
-            update method and the rendering, such that animations 
-            appear smoother. The lag / MS_PER_UPDATE ratio marks 
-            how far we are into the next frame. [0,1)
-            */
-
+            extrapolate();
             render();
         }
     }

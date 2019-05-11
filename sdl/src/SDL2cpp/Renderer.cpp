@@ -85,6 +85,6 @@ bool SDLRenderer::isLoaded() {
     return m_renderer != nullptr;
 }
 
-SDLTexture SDLRenderer::makeTexture() {
+SDLTexture SDLRenderer::createTexture() {
     return SDLTexture(m_renderer.get());
 }

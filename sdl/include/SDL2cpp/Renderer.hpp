@@ -34,7 +34,7 @@ public:
     /**
      * Factory method for creating new textures
      */
-    SDLTexture makeTexture();
+    SDLTexture createTexture();
 
     operator const SDL_Renderer *() const {
         return m_renderer.get();

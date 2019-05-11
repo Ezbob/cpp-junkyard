@@ -86,7 +86,7 @@ bool init() {
             SCREEN_WIDTH, SCREEN_HEIGHT,
             SDL_WINDOW_SHOWN);
 
-        renderer.load(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        renderer = window.getRenderer(-1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         renderer.setColor(0xFF, 0xFF, 0xFF, 0xFF);
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest"); // basically the anti-aliasing
     }

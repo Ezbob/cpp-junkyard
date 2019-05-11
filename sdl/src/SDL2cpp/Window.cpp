@@ -1,5 +1,6 @@
 #include "SDL2cpp/ErrorCheck.hpp"
 #include "SDL2cpp/Window.hpp"
+#include "SDL2cpp/Renderer.hpp"
 #include "SDL.h"
 
 SDLWindow::SDLWindow(const char *title, int x, int y, int width, int height, uint32_t flags) {
@@ -41,4 +42,8 @@ void SDLWindow::loadWindow(std::string windowName, int x, int y, int width, int 
     if (m_window == nullptr) {
         std::cerr << "Error: Window could not be initialize: " << SDL_GetError() << std::endl;
     }
+}
+
+SDLRenderer SDLWindow::getRenderer(int index, uint32_t rendererFlags) {
+    return SDLRenderer(m_window, index, rendererFlags);
 }

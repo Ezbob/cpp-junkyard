@@ -5,6 +5,8 @@
 #include "SDL.h"
 #include "Surface.hpp"
 
+class SDLRenderer;
+
 class SDLWindow {
 
 public:
@@ -25,6 +27,8 @@ public:
     bool isLoaded();
     SDLSurface getSurface() const;
     bool updateScreen() const;
+
+    SDLRenderer getRenderer(int index, uint32_t rendererFlags);
 
 private:
     SDL_Window *m_window;

@@ -156,7 +156,8 @@ void update() {
 }
 
 void prerender() {
-    lerp(man, clock.lag / MS_PER_UPDATE);
+    if (man.moveDirection != 0) // if we interpolate while we introduce jitter and wastes computation time (although it's not much here)
+        lerp(man, clock.lag / MS_PER_UPDATE);
 }
 
 void render() {
@@ -170,7 +171,6 @@ void handleInput() {
         if ( event.type == SDL_QUIT ) {
             globals.is_playing = false;
         }
-
     }
     const uint8_t *currentKeyState = SDL_GetKeyboardState(nullptr);
 

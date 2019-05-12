@@ -106,9 +106,7 @@ public:
     }
 
     void gotoFrame(int index) {
-        if (index >= 0 && index < numberOfFrames) {
-            currentFrame = index;
-        }
+        if (index >= 0 && index < numberOfFrames) currentFrame = index;
     }
 
     int getFramerate() const {

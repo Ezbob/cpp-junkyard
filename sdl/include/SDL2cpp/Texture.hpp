@@ -4,28 +4,20 @@
 #include "Renderer.hpp"
 #include "Surface.hpp"
 #include "SDL.h"
+#include "SDL2cpp/MemoryContainer.hpp"
 
 class SDLRenderer;
 
-class SDLTexture {
+class SDLTexture : public SharedContainerBase<SDLTexture, SDL_Texture, SDL_DestroyTexture> {
 
 public:
     SDLTexture(SDLRenderer &renderer);
     SDLTexture(SDL_Renderer *renderer);
 
     void load(SDL_Texture *texture, int w, int h);
+    void load(SDL_Texture *texture);
     void load(SDL_Surface *surface);
     void load(SDLSurface &surface);
-
-    bool isLoaded();
-
-    operator const SDL_Texture *() const {
-        return m_texture.get();
-    }
-
-    explicit operator SDL_Texture *() const {
-        return m_texture.get();
-    }
 
     int getHeight() const {
         return m_height;
@@ -41,7 +33,6 @@ public:
     void render(const int x, const int y, SDL_RendererFlip &flip);
 
 private:
-    std::shared_ptr<SDL_Texture> m_texture;
     SDL_Renderer *m_renderer;
     int m_width;
     int m_height;

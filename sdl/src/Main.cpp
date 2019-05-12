@@ -12,7 +12,7 @@ SDLWindow window;
 SDLRenderer renderer;
 
 SDL_Event event;
-SpriteSheetAnimator<4, 1> animation(renderer, 64, 205);
+SpriteSheetAnimator<4, 1> animation(renderer, 64, 205, 5);
 
 SDLTexture fooTexture = renderer.createTexture();
 SDLTexture backgroundTexture = renderer.createTexture();

@@ -50,11 +50,11 @@ protected:
     std::shared_ptr<ContainedType> m_contained = nullptr;
 
 public:
-    constexpr explicit operator ContainedType *() {
+    constexpr explicit operator ContainedType *() const {
         return m_contained.get();
     }
 
-    constexpr operator const ContainedType *() {
+    constexpr operator const ContainedType *() const {
         return m_contained.get();
     }
 

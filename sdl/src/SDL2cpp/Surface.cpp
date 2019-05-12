@@ -41,7 +41,7 @@ void SDLSurface::convertToFormat(const SDLSurface &other) {
         std::cerr << "Error: Surface replace could not be initialized; convertion failed" << std::endl;
     } else {
         m_contained.swap(optimizedSurface);
-        m_contained = optimizedSurface;
+        //m_contained = optimizedSurface;
     }
 }
 

@@ -4,13 +4,13 @@
 #include "SDL.h"
 
 SDLWindow::SDLWindow(const char *title, int x, int y, int width, int height, uint32_t flags) {
-    m_window = CheckSDLNullError(SDL_CreateWindow(
+    m_window = CheckNullError<SDL_Window, SDL_GetError>(SDL_CreateWindow(
         title, x, y, width, height, flags
     ), "Window could not be initialized");
 }
 
 SDLWindow::SDLWindow(const char *title, int xy, int width, int height, uint32_t flags) {
-    m_window = CheckSDLNullError(SDL_CreateWindow(
+    m_window = CheckNullError<SDL_Window, SDL_GetError>(SDL_CreateWindow(
         title, xy, xy, width, height, flags
     ), "Window could not be initialized");
 }

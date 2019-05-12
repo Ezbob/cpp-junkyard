@@ -77,5 +77,5 @@ uint32_t SDLSurface::rgbColor(int r, int g, int b) const {
 }
 
 int SDLSurface::setKeyColor(int flags, uint32_t color) {
-    return CheckSDLError(SDL_SetColorKey(m_surface.get(), flags, color), "Could not set key color");
+    return CheckError<SDL_GetError>(SDL_SetColorKey(m_surface.get(), flags, color), "Could not set key color");
 }

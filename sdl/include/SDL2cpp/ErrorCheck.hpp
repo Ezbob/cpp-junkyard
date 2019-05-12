@@ -4,19 +4,23 @@
 #include "SDL.h"
 #include <iostream>
 
-constexpr int CheckSDLError(int success, const char *message) {
-    if (success != 0) { 
-            std::cerr << "Error: " << message << ": " << SDL_GetError() << std::endl; 
-    } 
-    return success == 0;
-}
+using ErrorGetterFunction_t = const char *(*)();
 
-template<typename T>
-constexpr T *CheckSDLNullError(T *returned, const char *message) {
-    if (returned == nullptr) { 
-        std::cerr << "Error: " << message << ": " << SDL_GetError() << std::endl; 
+template<typename T, ErrorGetterFunction_t ErrorGetter>
+constexpr T *CheckNullError(T *returned, const char *message) {
+    if ( returned == nullptr ) { 
+        std::cerr << "Error: " << message << ": " << ErrorGetter() << std::endl; 
     }
     return returned;
 }
+
+template<ErrorGetterFunction_t ErrorGetter>
+constexpr int CheckError(int success, const char *message) {
+    if ( success != 0 ) { 
+        std::cerr << "Error: " << message << ": " << ErrorGetter() << std::endl; 
+    }
+    return success == 0;
+}
+
 
 #endif

@@ -7,7 +7,7 @@ set(${EXEC}_VERSION_MAJOR 0)
 set(${EXEC}_VERSION_MINOR 1)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -02")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 set(SOURCES
@@ -17,6 +17,7 @@ set(SOURCES
     src/SDL2cpp/Window.cpp
     src/SDL2cpp/Surface.cpp
     src/SDL2cpp/Globals.cpp
+    src/SDLExtra/Font.cpp
 )
 
 set(INCLUDE_DIRS

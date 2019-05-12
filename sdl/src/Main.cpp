@@ -164,6 +164,7 @@ void prerender() {
 void render() {
     backgroundTexture.render();
     animation.render(man.x[0], man.y[0]);
+    text.render((SCREEN_WIDTH  - text.getWidth()) / 2, (SCREEN_HEIGHT - text.getHeight()) / 4);
     renderer.updateScreen();
 }
 

@@ -156,8 +156,9 @@ void update() {
 }
 
 void prerender() {
+    double nextFrameRatio = clock.lag / MS_PER_UPDATE;
     if (man.moveDirection != 0) // if we interpolate while we introduce jitter and wastes computation time (although it's not much here)
-        lerp(man, clock.lag / MS_PER_UPDATE);
+        lerp(man, nextFrameRatio);
 }
 
 void render() {

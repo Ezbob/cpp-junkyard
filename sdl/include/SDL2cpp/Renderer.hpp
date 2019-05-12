@@ -2,11 +2,12 @@
 #define HEADER_GUARD_a04ab214bef1adcd47b92de3a2c703e2
 
 #include "SDL.hpp"
+#include "SDL2cpp/MemoryContainer.hpp"
 
 class SDLTexture;
 class SDLWindow;
 
-class SDLRenderer {
+class SDLRenderer : public SharedContainerBase<SDLRenderer, SDL_Renderer, SDL_DestroyRenderer> {
 
 public:
     SDLRenderer(SDL_Window *window, int index, uint32_t rendererFlags);
@@ -29,24 +30,13 @@ public:
     bool drawPoint(int x, int y);
     bool setViewPort(SDL_Rect &rect);
 
-    bool isLoaded();
-
     /**
      * Factory method for creating new textures
      */
     SDLTexture createTexture();
 
-    operator const SDL_Renderer *() const {
-        return m_renderer.get();
-    }
-
-    explicit operator SDL_Renderer *() const {
-        return m_renderer.get();
-    }
-
 private:
     SDL_Window *m_window_parent = nullptr;
-    std::shared_ptr<SDL_Renderer> m_renderer = nullptr;
 };
 
 #endif

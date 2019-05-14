@@ -1,3 +1,5 @@
 .vscode/
 *.exe
 *.o
+CMakeFiles/
+CMakeCache.txt

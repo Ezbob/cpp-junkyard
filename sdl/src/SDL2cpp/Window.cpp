@@ -18,7 +18,8 @@ SDLWindow::SDLWindow(const char *title, int xy, int width, int height, uint32_t 
 SDLWindow::SDLWindow() {}
 
 void SDLWindow::load(SDL_Window *wind) {
-    m_contained = CheckNullError<SDL_Window, SDL_GetError>(wind, "Window could not be initialize");
+    m_contained = CheckNullError<SDL_Window, SDL_GetError>(wind,
+        "Window could not be loaded");
 }
 
 SDLSurface SDLWindow::getSurface() const {
@@ -30,7 +31,8 @@ bool SDLWindow::updateScreen() const {
 }
 
 void SDLWindow::loadWindow(std::string windowName, int x, int y, int width, int height, uint32_t flags) {
-    m_contained = CheckNullError<SDL_Window, SDL_GetError>(SDL_CreateWindow(windowName.c_str(), x, y, width, height, flags), "Window could not be initialize");
+    m_contained = CheckNullError<SDL_Window, SDL_GetError>(SDL_CreateWindow(windowName.c_str(), x, y, width, height, flags),
+        "Window could not be loaded");
 }
 
 SDLRenderer SDLWindow::getRenderer(int index, uint32_t rendererFlags) {

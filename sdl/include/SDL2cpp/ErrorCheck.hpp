@@ -7,7 +7,7 @@
 using ErrorGetterFunction_t = const char *(*)();
 
 template<typename T, ErrorGetterFunction_t ErrorGetter>
-constexpr T *CheckNullError(T *returned, const char *message) {
+T *CheckNullError(T *returned, const char *message) {
     if ( returned == nullptr ) { 
         std::cerr << "Error: " << message << ": " << ErrorGetter() << std::endl; 
     }
@@ -15,7 +15,7 @@ constexpr T *CheckNullError(T *returned, const char *message) {
 }
 
 template<ErrorGetterFunction_t ErrorGetter>
-constexpr int CheckError(int success, const char *message) {
+int CheckError(int success, const char *message) {
     if ( success != 0 ) { 
         std::cerr << "Error: " << message << ": " << ErrorGetter() << std::endl; 
     }

@@ -50,19 +50,19 @@ protected:
     std::shared_ptr<ContainedType> m_contained = nullptr;
 
 public:
-    constexpr explicit operator ContainedType *() const {
+    explicit operator ContainedType *() const {
         return m_contained.get();
     }
 
-    constexpr operator const ContainedType *() const {
+    operator const ContainedType *() const {
         return m_contained.get();
     }
 
-    constexpr bool isLoaded() const {
+    bool isLoaded() const {
         return m_contained != nullptr;
     }
 
-    constexpr void load(ContainedType *newStuff) {
+    void load(ContainedType *newStuff) {
         m_contained = std::shared_ptr<ContainedType>(newStuff, FreeingFunction);
     }
 };

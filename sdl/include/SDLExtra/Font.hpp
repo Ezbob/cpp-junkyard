@@ -9,7 +9,6 @@ class TTFFont : public ContainerBase<TTFFont, TTF_Font, TTF_CloseFont> {
 
 public:
     void loadTTF(const std::string filepath, int ptsize);
-
 };
 
 #endif

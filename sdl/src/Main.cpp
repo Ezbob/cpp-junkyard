@@ -190,8 +190,6 @@ int WinMain() {
 
     if ( init() && load() ) {
         while ( globals.is_playing ) {
-
-            clock.tick();
             handleInput();
 
             while ( clock.lag >= MS_PER_UPDATE) {
@@ -201,6 +199,8 @@ int WinMain() {
 
             prerender();
             render();
+
+            clock.tick();
         }
     }
 

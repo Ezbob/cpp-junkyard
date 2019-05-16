@@ -8,36 +8,42 @@
 template<typename T>
 using FreeingFunction_t = void (*)(T *);
 
+/*
+ * The SDL_Window type "inherites" from this base, because it is an incomplete type,
+ * and Windows generally outlives most other object of a game. 
+ */
 template<class Derived, typename ContainedType, FreeingFunction_t<ContainedType> FreeingFunction>
 class ContainerBase {
 
 protected:
     constexpr static FreeingFunction_t<ContainedType> freeingFunction = FreeingFunction;
 
-    ContainedType *m_contained;
-    bool m_isLoaded = false;
+    ContainedType *m_contained = nullptr;
 
 public:
     ~ContainerBase() {
-        if (m_isLoaded) {
+        if (m_contained != nullptr) {
             FreeingFunction(m_contained);
         }
     }
 
-    constexpr explicit operator ContainedType *() {
+    explicit operator ContainedType *() {
         return m_contained;
     }
 
-    constexpr operator const ContainedType *() {
+    operator const ContainedType *() {
         return m_contained;
     }
 
-    constexpr bool isLoaded() const {
+    bool isLoaded() const {
         return m_contained != nullptr;
     }
 
-    constexpr void load(ContainedType *newStuff) {
+    void load(ContainedType *newStuff) {
         m_contained = newStuff;
+        if (m_contained == nullptr) {
+            std::cerr << "Error: Could not load item into memory container" << std::endl;
+        }
     }
 };
 
@@ -46,7 +52,6 @@ class SharedContainerBase {
 
 protected:
     constexpr static FreeingFunction_t<ContainedType> freeingFunction = FreeingFunction;
-
     std::shared_ptr<ContainedType> m_contained = nullptr;
 
 public:
@@ -63,7 +68,11 @@ public:
     }
 
     void load(ContainedType *newStuff) {
-        m_contained = std::shared_ptr<ContainedType>(newStuff, FreeingFunction);
+        if ( newStuff == nullptr ) {
+            std::cerr << "Error: Could not load item into shared memory container " << std::endl;
+        } else {
+            m_contained = std::shared_ptr<ContainedType>(newStuff, FreeingFunction);
+        }
     }
 };
 

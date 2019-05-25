@@ -20,5 +20,7 @@ int main() {
     auto normed = v3.norm();
     std::cout << normed << std::endl;
 
+    std::cout << v3.mul(v3) << std::endl;
+
     return 0;
 }

@@ -4,11 +4,12 @@
 #include <cmath>
 #include <iostream>
 #include <ostream>
+#include <array>
 #include <initializer_list>
 
 template<std::size_t Dim, typename T>
 class Vec {
-    T value[Dim];
+    T value[Dim] = {0};
 
 public:
     const std::size_t dimension = Dim;
@@ -22,10 +23,16 @@ public:
         }
     }
 
+    constexpr explicit Vec(const T *args) noexcept {
+        for (std::size_t i = 0; i < Dim; ++i) {
+            value[i] = args[i];
+        }
+    }
+
     constexpr static Vec<Dim, T> initialized(const T &&initializeValue) noexcept {
         Vec<Dim, T> res;
 
-        for (int i = 0; i < Dim; ++i) {
+        for (std::size_t i = 0; i < Dim; ++i) {
             res.value[i] = initializeValue;
         }
 
@@ -40,13 +47,13 @@ public:
         return Vec<Dim, T>::initialized(1);
     }
 
-    constexpr T operator[] (int i) const noexcept {
+    constexpr T operator[] (std::size_t i) const noexcept {
         return value[i];
     }
 
     constexpr Vec<Dim, T> add(const Vec<Dim, T> &other) const noexcept {
         Vec<Dim, T> result;
-        for (int i = 0; i < Dim; ++i) {
+        for (std::size_t i = 0; i < Dim; ++i) {
             result.value[i] = value[i] + other[i];
         }
         return result;
@@ -54,7 +61,7 @@ public:
 
     constexpr Vec<Dim, T> add(const T &scalar) const noexcept {
         Vec<Dim, T> result;
-        for (int i = 0; i < Dim; ++i) {
+        for (std::size_t i = 0; i < Dim; ++i) {
             result.value[i] = value[i] + scalar;
         }
         return result;
@@ -62,7 +69,7 @@ public:
 
     constexpr Vec<Dim, T> sub(const T &scalar) const noexcept {
         Vec<Dim, T> result;
-        for (int i = 0; i < Dim; ++i) {
+        for (std::size_t i = 0; i < Dim; ++i) {
             result.value[i] = value[i] - scalar;
         }
         return result;
@@ -70,7 +77,7 @@ public:
 
     constexpr Vec<Dim, T> sub(const Vec<Dim, T> &other) const noexcept {
         Vec<Dim, T> result;
-        for (int i = 0; i < Dim; ++i) {
+        for (std::size_t i = 0; i < Dim; ++i) {
             result.value[i] = value[i] + other[i];
         }
         return result;
@@ -78,7 +85,7 @@ public:
 
     constexpr Vec<Dim, T> mul(const T &scalar) const noexcept {
         Vec<Dim, T> result;
-        for (int i = 0; i < Dim; ++i) {
+        for (std::size_t i = 0; i < Dim; ++i) {
             result.value[i] = value[i] * scalar;
         }
         return result;
@@ -86,7 +93,7 @@ public:
 
     constexpr Vec<Dim, T> mul(const Vec<Dim, T> &other) const noexcept {
         Vec<Dim, T> result;
-        for (int i = 0; i < Dim; ++i) {
+        for (std::size_t i = 0; i < Dim; ++i) {
             result.value[i] = value[i] * other[i];
         }
         return result;
@@ -94,7 +101,7 @@ public:
 
     constexpr Vec<Dim, T> div(const T &scalar) const noexcept {
         Vec<Dim, T> result;
-        for (int i = 0; i < Dim; ++i) {
+        for (std::size_t i = 0; i < Dim; ++i) {
             result.value[i] = value[i] / scalar;
         }
         return result;
@@ -102,7 +109,7 @@ public:
 
     constexpr Vec<Dim, T> div(const Vec<Dim, T> &other) const noexcept {
         Vec<Dim, T> result;
-        for (int i = 0; i < Dim; ++i) {
+        for (std::size_t i = 0; i < Dim; ++i) {
             result.value[i] = value[i] / other[i];
         }
         return result;
@@ -171,6 +178,9 @@ constexpr std::ostream& operator <<(std::ostream& os, const Vec<D, U> &vec) noex
     os << ")";
     return os;
 }
+
+template<std::size_t Dim>
+using VecR = Vec<Dim, double>;
 
 template<typename T>
 using Vec2 = Vec<2, T>;

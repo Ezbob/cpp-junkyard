@@ -2,8 +2,8 @@
 #include "linAlg.hpp"
 
 int main() {
-    auto v = VecR2::one();
-    auto v2 = VecR2({3., 2.});
+    constexpr auto v = VecR2::one();
+    constexpr auto v2 = VecR2({3., 2.});
 
     std::cout << v << std::endl;
 

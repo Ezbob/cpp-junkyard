@@ -11,7 +11,7 @@ class Vec {
     T value[Dim];
 
 public:
-    std::size_t dimension = Dim;
+    const std::size_t dimension = Dim;
 
     Vec() = default;
 

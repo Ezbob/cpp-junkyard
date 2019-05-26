@@ -23,7 +23,7 @@ namespace LinAlg {
             }
         }
 
-        constexpr static Vec<Dim, T> initialized(const T &initializeValue) noexcept {
+        constexpr static Vec<Dim, T> initWith(const T &initializeValue) noexcept {
             Vec<Dim, T> res;
 
             for (std::size_t i = 0; i < Dim; ++i) {
@@ -34,11 +34,11 @@ namespace LinAlg {
         }
 
         constexpr static Vec<Dim, T> zeroes() noexcept {
-            return Vec<Dim, T>::initialized(0);
+            return Vec<Dim, T>::initWith(0);
         }
 
         constexpr static Vec<Dim, T> ones() noexcept {
-            return Vec<Dim, T>::initialized(1);
+            return Vec<Dim, T>::initWith(1);
         }
 
         constexpr T operator[](std::size_t i) const noexcept {

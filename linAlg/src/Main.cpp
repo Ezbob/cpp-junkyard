@@ -10,8 +10,7 @@ int main() {
     constexpr auto vv4 = VecR<4>::ones();
 
     std::cout << v << std::endl;
-
-    auto v3 = v + v2;
+    constexpr auto v3 = v + v2;
 
     static_assert(v3.dimension == 2, "Hello?");
     static_assert(vv4.dimension == 4, "What?");

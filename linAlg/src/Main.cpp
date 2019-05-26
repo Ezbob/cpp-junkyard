@@ -2,12 +2,19 @@
 #include "linAlg.hpp"
 
 int main() {
-    constexpr auto v = VecR2::one();
+    using namespace LinAlg;
+
+    constexpr auto v = VecR2::ones();
     constexpr auto v2 = VecR2({3., 2.});
+
+    constexpr auto vv4 = VecR<4>::ones();
 
     std::cout << v << std::endl;
 
     auto v3 = v + v2;
+
+    static_assert(v3.dimension == 2, "Hello?");
+    static_assert(vv4.dimension == 4, "What?");
 
     auto v4 = v2 * 2;
 
@@ -21,6 +28,10 @@ int main() {
     std::cout << normed << std::endl;
 
     std::cout << v3.mul(v3) << std::endl;
+
+    constexpr auto mv = VecR2();
+
+    std::cout << mv[0] << std::endl;
 
     return 0;
 }

@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 project("linAlg")
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -pedantic")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -pedantic -Weffc++")
 
 add_executable("Main" "src/Main.cpp")
 

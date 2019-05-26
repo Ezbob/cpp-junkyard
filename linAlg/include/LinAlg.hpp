@@ -10,7 +10,7 @@ namespace LinAlg {
 
     template<std::size_t Dim, typename T>
     class Vec {
-        T value[Dim] = {0};
+        T _data[Dim] = {0};
 
     public:
         constexpr static std::size_t dimension = Dim;
@@ -19,7 +19,7 @@ namespace LinAlg {
 
         constexpr explicit Vec(const T(&args)[Dim]) noexcept {
             for (std::size_t i = 0; i < Dim; ++i) {
-                value[i] = args[i];
+                _data[i] = args[i];
             }
         }
 
@@ -27,7 +27,7 @@ namespace LinAlg {
             Vec<Dim, T> res;
 
             for (std::size_t i = 0; i < Dim; ++i) {
-                res.value[i] = initializeValue;
+                res._data[i] = initializeValue;
             }
 
             return res; 
@@ -41,14 +41,14 @@ namespace LinAlg {
             return Vec<Dim, T>::initialized(1);
         }
 
-        constexpr T operator[] (std::size_t i) const noexcept {
-            return value[i];
+        constexpr T operator[](std::size_t i) const noexcept {
+            return _data[i];
         }
 
         constexpr Vec<Dim, T> add(const Vec<Dim, T> &other) const noexcept {
             Vec<Dim, T> result;
             for (std::size_t i = 0; i < Dim; ++i) {
-                result.value[i] = value[i] + other[i];
+                result._data[i] = _data[i] + other._data[i];
             }
             return result;
         }
@@ -56,7 +56,7 @@ namespace LinAlg {
         constexpr Vec<Dim, T> add(const T &scalar) const noexcept {
             Vec<Dim, T> result;
             for (std::size_t i = 0; i < Dim; ++i) {
-                result.value[i] = value[i] + scalar;
+                result._data[i] = _data[i] + scalar;
             }
             return result;
         }
@@ -64,7 +64,7 @@ namespace LinAlg {
         constexpr Vec<Dim, T> sub(const T &scalar) const noexcept {
             Vec<Dim, T> result;
             for (std::size_t i = 0; i < Dim; ++i) {
-                result.value[i] = value[i] - scalar;
+                result._data[i] = _data[i] - scalar;
             }
             return result;
         }
@@ -72,7 +72,7 @@ namespace LinAlg {
         constexpr Vec<Dim, T> sub(const Vec<Dim, T> &other) const noexcept {
             Vec<Dim, T> result;
             for (std::size_t i = 0; i < Dim; ++i) {
-                result.value[i] = value[i] + other[i];
+                result._data[i] = _data[i] + other._data[i];
             }
             return result;
         }
@@ -80,7 +80,7 @@ namespace LinAlg {
         constexpr Vec<Dim, T> mul(const T &scalar) const noexcept {
             Vec<Dim, T> result;
             for (std::size_t i = 0; i < Dim; ++i) {
-                result.value[i] = value[i] * scalar;
+                result._data[i] = _data[i] * scalar;
             }
             return result;
         }
@@ -88,7 +88,7 @@ namespace LinAlg {
         constexpr Vec<Dim, T> mul(const Vec<Dim, T> &other) const noexcept {
             Vec<Dim, T> result;
             for (std::size_t i = 0; i < Dim; ++i) {
-                result.value[i] = value[i] * other[i];
+                result._data[i] = _data[i] * other._data[i];
             }
             return result;
         }
@@ -96,7 +96,7 @@ namespace LinAlg {
         constexpr Vec<Dim, T> div(const T &scalar) const noexcept {
             Vec<Dim, T> result;
             for (std::size_t i = 0; i < Dim; ++i) {
-                result.value[i] = value[i] / scalar;
+                result._data[i] = _data[i] / scalar;
             }
             return result;
         }
@@ -104,7 +104,7 @@ namespace LinAlg {
         constexpr Vec<Dim, T> div(const Vec<Dim, T> &other) const noexcept {
             Vec<Dim, T> result;
             for (std::size_t i = 0; i < Dim; ++i) {
-                result.value[i] = value[i] / other[i];
+                result._data[i] = _data[i] / other._data[i];
             }
             return result;
         }
@@ -129,7 +129,7 @@ namespace LinAlg {
             T result = 0;
 
             for (std::size_t i = 0; i < Dim; ++i) {
-                result += value[i] * other.value[i];
+                result += _data[i] * other._data[i];
             }
 
             return result;
@@ -139,7 +139,7 @@ namespace LinAlg {
             T result = 0;
 
             for (std::size_t i = 0; i < Dim; ++i) {
-                result += value[i] * value[i];
+                result += _data[i] * _data[i];
             }
 
             return std::sqrt(result);
@@ -150,11 +150,11 @@ namespace LinAlg {
         }
 
         constexpr T *begin() const noexcept {
-            return &value[0];
+            return &_data[0];
         }
 
         constexpr T *end() const noexcept {
-            return &value[Dim];
+            return &_data[Dim];
         }
 
         template<std::size_t D, typename U>

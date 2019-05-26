@@ -2,9 +2,7 @@
 #define HEADER_GUARD_555f3585de52793a2e4eb2d7704775f8
 
 #include <cmath>
-#include <iostream>
 #include <ostream>
-#include <array>
 
 namespace LinAlg {
 

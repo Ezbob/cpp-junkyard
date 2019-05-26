@@ -206,7 +206,7 @@ namespace LinAlg {
          * Zero value here means that the two vectors are co-linear
          */
         constexpr T cross(const Vec2<T> &other) const noexcept {
-            return (x() * other.Y()) - (y() * other.X());
+            return (x() * other.y()) - (y() * other.x());
         }
     };
 

@@ -38,5 +38,7 @@ int main() {
 
     std::cout << av.cross(bv) << std::endl;
 
+    std::cout << v2.cross(mv) << std::endl;
+
     return 0;
 }

@@ -173,15 +173,6 @@ namespace LinAlg {
         return os;
     }
 
-    template<typename T, std::size_t Dim>
-    class Vec : public VecBase<T, Dim> {
-
-    public:
-        constexpr Vec() noexcept {};
-
-        constexpr explicit Vec(const T(&args)[Dim]) noexcept : VecBase<T, Dim>(args) {}
-    };
-
     template<typename T>
     class Vec2 : public VecBase<T, 2> {
         using BaseClass = VecBase<T, 2>;
@@ -243,6 +234,9 @@ namespace LinAlg {
     // ---
     // Easy aliases
     // ---
+
+    template<typename T, std::size_t Dim>
+    using Vec = VecBase<T, Dim>;
 
     template<std::size_t Dim>
     using VecR = Vec<double, Dim>;

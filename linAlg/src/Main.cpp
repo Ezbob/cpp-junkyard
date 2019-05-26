@@ -12,8 +12,8 @@ int main() {
     std::cout << v << std::endl;
     constexpr auto v3 = v + v2;
 
-    static_assert(v3.dimension == 2, "Hello?");
-    static_assert(vv4.dimension == 4, "What?");
+    static_assert(v3.dim == 2, "Hello?");
+    static_assert(vv4.dim == 4, "What?");
 
     auto v4 = v2 * 2;
 
@@ -28,9 +28,15 @@ int main() {
 
     std::cout << v3.mul(v3) << std::endl;
 
-    constexpr auto mv = VecR2();
+    constexpr auto mv = VecR2({2, 3});
 
-    std::cout << mv[0] << std::endl;
+    std::cout << mv.x() << std::endl;
+
+    constexpr auto av = VecR3({2, 4, 1});
+
+    constexpr auto bv = VecR3({1, 2, 1});
+
+    std::cout << av.cross(bv) << std::endl;
 
     return 0;
 }

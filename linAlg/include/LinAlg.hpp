@@ -13,7 +13,7 @@ namespace LinAlg {
         T _data[Dim] = {0};
 
     public:
-        constexpr static std::size_t dimension = Dim;
+        constexpr static std::size_t dim = Dim;
 
         constexpr VecBase() noexcept {};
 
@@ -164,9 +164,9 @@ namespace LinAlg {
     template<typename U, std::size_t D>
     constexpr std::ostream& operator <<(std::ostream& os, const VecBase<U, D> &vec) noexcept {
         os << "(";
-        if (vec.dimension > 0) {
+        if (vec.dim > 0) {
             os << vec[0];
-            for (std::size_t i = 1; i < vec.dimension; ++i) 
+            for (std::size_t i = 1; i < vec.dim; ++i) 
                 os << ", " << vec[i];
         }
         os << ")";
@@ -184,14 +184,59 @@ namespace LinAlg {
 
     template<typename T>
     class Vec2 : public VecBase<T, 2> {
+        using BaseClass = VecBase<T, 2>;
 
     public:
         constexpr Vec2() noexcept {}
 
-        constexpr explicit Vec2(const T(&args)[2]) noexcept : VecBase<T, 2>(args) {}
+        constexpr explicit Vec2(const T(&args)[2]) noexcept : BaseClass(args) {}
 
-        constexpr int superCool2DMethod() const noexcept {
-            return 42;
+        constexpr T x() const noexcept {
+            return BaseClass::_data[0];
+        }
+
+        constexpr T y() const noexcept {
+            return BaseClass::_data[1];
+        }
+
+        /**
+         * The 2D cross product hack.
+         * It's really the z-component of 3D vector perpendicular to the two 2D vectors
+         * that the product is calculated from.
+         * Zero value here means that the two vectors are co-linear
+         */
+        constexpr T cross(const Vec2<T> &other) const noexcept {
+            return (x() * other.Y()) - (y() * other.X());
+        }
+    };
+
+    template<typename T>
+    class Vec3 : public VecBase<T, 3> {
+        using BaseClass = VecBase<T, 3>;
+
+    public:
+        constexpr Vec3() noexcept {}
+
+        constexpr explicit Vec3(const T(&args)[3]) noexcept : BaseClass(args) {}
+
+        constexpr T x() const noexcept {
+            return BaseClass::_data[0];
+        }
+
+        constexpr T y() const noexcept {
+            return BaseClass::_data[1];
+        }
+
+        constexpr T z() const noexcept {
+            return BaseClass::_data[2];
+        }
+
+        constexpr Vec3<T> cross(const Vec3<T> &other) const noexcept {
+            return Vec3<T>({
+                  y() * other.z() - z() * other.y()
+                , z() * other.x() - x() * other.z()
+                , x() * other.y() - y() * other.x()
+            });
         }
     };
 
@@ -205,9 +250,9 @@ namespace LinAlg {
     using VecR2 = Vec2<double>;
 
     template<typename T>
-    using Vec3 = Vec<T, 3>;
+    using Vec3 = Vec3<T>;
 
-    using VecR3 = Vec<double, 3>;
+    using VecR3 = Vec3<double>;
 
 }
 

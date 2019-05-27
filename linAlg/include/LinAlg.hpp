@@ -72,7 +72,7 @@ namespace LinAlg {
         constexpr VecBase<T, Dim> sub(const VecBase<T, Dim> &other) const noexcept {
             VecBase<T, Dim> result;
             for (std::size_t i = 0; i < Dim; ++i) {
-                result._data[i] = _data[i] + other._data[i];
+                result._data[i] = _data[i] - other._data[i];
             }
             return result;
         }
@@ -113,15 +113,31 @@ namespace LinAlg {
             return add(other);
         }
 
+        constexpr VecBase<T, Dim> operator +(const T &scalar) const noexcept {
+            return add(scalar);
+        }
+
         constexpr VecBase<T, Dim> operator -(const VecBase<T, Dim> &other) const noexcept {
             return sub(other);
+        }
+
+        constexpr VecBase<T, Dim> operator -(const T &scalar) const noexcept {
+            return sub(scalar);
         }
 
         constexpr VecBase<T, Dim> operator *(const T &other) const noexcept {
             return mul(other);
         }
 
+        constexpr VecBase<T, Dim> operator *(const VecBase<T, Dim> &other) const noexcept {
+            return mul(other);
+        }
+
         constexpr VecBase<T, Dim> operator /(const T &other) const noexcept {
+            return div(other);
+        }
+
+        constexpr VecBase<T, Dim> operator /(const VecBase<T, Dim> &other) const noexcept {
             return div(other);
         }
 

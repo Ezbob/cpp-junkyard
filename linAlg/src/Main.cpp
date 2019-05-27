@@ -1,44 +1,217 @@
+
+#define CATCH_CONFIG_MAIN
+#include "test/Catch2.hpp"
 #include <iostream>
 #include "linAlg.hpp"
 
-int main() {
-    using namespace LinAlg;
+TEST_CASE( "Vector initialization with single scalar", "[vec.initWith]" ) {
+    auto scalarIniter = 2.;
+    auto vec = LinAlg::VecR3::initWith(scalarIniter);
 
-    constexpr auto v = VecR2::ones();
-    constexpr auto v2 = VecR2({3., 2.});
+    REQUIRE(vec[0] == scalarIniter);
+    REQUIRE(vec[1] == scalarIniter);
+    REQUIRE(vec[2] == scalarIniter);
+}
 
-    constexpr auto vv4 = VecR<4>::ones();
 
-    std::cout << v << std::endl;
-    constexpr auto v3 = v + v2;
+TEST_CASE( "Vector initialization with zeroes", "[vec.zeroes]" ) {
+    auto vec = LinAlg::VecR3::zeroes();
 
-    static_assert(v3.dim == 2, "Hello?");
-    static_assert(vv4.dim == 4, "What?");
+    REQUIRE(vec[0] == 0);
+    REQUIRE(vec[1] == 0);
+    REQUIRE(vec[2] == 0);
+}
 
-    auto v4 = v2 * 2;
 
-    std::cout << v3 << std::endl;
-    std::cout << v2 << std::endl;
-    std::cout << v4 << std::endl;
+TEST_CASE( "Vector initialization with ones", "[vec.ones]" ) {
+    auto vec = LinAlg::VecR3::ones();
 
-    std::cout << v3.dot(v4) << std::endl;
+    REQUIRE(vec[0] == 1);
+    REQUIRE(vec[1] == 1);
+    REQUIRE(vec[2] == 1);
+}
 
-    auto normed = v3.norm();
-    std::cout << normed << std::endl;
 
-    std::cout << v3.mul(v3) << std::endl;
+TEST_CASE( "Vector-vector addition", "[vec.add]" ) {
 
-    constexpr auto mv = VecR2({2, 3});
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto vec2 = LinAlg::VecR2({1., 2.});
 
-    std::cout << mv.x() << std::endl;
+    auto result = vec.add(vec2);
 
-    constexpr auto av = VecR3({2, 4, 1});
+    REQUIRE(result[0] == 3);
+    REQUIRE(result[1] == 5);
+}
 
-    constexpr auto bv = VecR3({1, 2, 1});
+TEST_CASE( "Vector-vector addition with operator", "[vec.+]" ) {
 
-    std::cout << av.cross(bv) << std::endl;
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto vec2 = LinAlg::VecR2({1., 2.});
 
-    std::cout << v2.cross(mv) << std::endl;
+    auto result = vec + vec2;
 
-    return 0;
+    REQUIRE(result[0] == 3);
+    REQUIRE(result[1] == 5);
+}
+
+TEST_CASE( "Vector-scalar addition", "[vec.add]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto scalar = 3.;
+
+    auto result = vec.add(scalar);
+
+    REQUIRE(result[0] == 5);
+    REQUIRE(result[1] == 6);
+}
+
+
+TEST_CASE( "Vector-scalar addition with operator", "[vec.+]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto scalar = 3.;
+
+    auto result = vec + scalar;
+
+    REQUIRE(result[0] == 5);
+    REQUIRE(result[1] == 6);
+}
+
+
+TEST_CASE( "Vector-vector subtraction", "[vec.sub]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto vec2 = LinAlg::VecR2({1., 2.});
+
+    auto result = vec.sub(vec2);
+
+    REQUIRE(result[0] == 1);
+    REQUIRE(result[1] == 1);
+}
+
+
+TEST_CASE( "Vector-vector subtraction with operator", "[vec.-]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto vec2 = LinAlg::VecR2({1., 2.});
+
+    auto result = vec - vec2;
+
+    REQUIRE(result[0] == 1);
+    REQUIRE(result[1] == 1);
+}
+
+
+TEST_CASE( "Vector-scalar subtraction", "[vec.sub]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto scalar = 3.;
+
+    auto result = vec.sub(scalar);
+
+    REQUIRE(result[0] == -1.);
+    REQUIRE(result[1] == 0);
+}
+
+
+TEST_CASE( "Vector-scalar subtraction with operator", "[vec.-]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto scalar = 3.;
+
+    auto result = vec - scalar;
+
+    REQUIRE(result[0] == -1);
+    REQUIRE(result[1] == 0);
+}
+
+
+TEST_CASE( "Vector-vector multiplication", "[vec.mul]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto vec2 = LinAlg::VecR2({1., 2.});
+
+    auto result = vec.mul(vec2);
+
+    REQUIRE(result[0] == 2);
+    REQUIRE(result[1] == 6);
+}
+
+
+TEST_CASE( "Vector-vector multiplication with operator", "[vec.*]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto vec2 = LinAlg::VecR2({1., 2.});
+
+    auto result = vec * vec2;
+
+    REQUIRE(result[0] == 2);
+    REQUIRE(result[1] == 6);
+}
+
+
+TEST_CASE( "Vector-scalar multiplication", "[vec.mul]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto scalar = 2.;
+
+    auto result = vec.mul(scalar);
+
+    REQUIRE(result[0] == 4);
+    REQUIRE(result[1] == 6);
+}
+
+
+TEST_CASE( "Vector-scalar multiplication with operator", "[vec.*]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto scalar = 2.;
+
+    auto result = vec * scalar;
+
+    REQUIRE(result[0] == 4);
+    REQUIRE(result[1] == 6);
+}
+
+
+TEST_CASE( "Vector-scalar division", "[vec.div]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto scalar = 2.;
+
+    auto result = vec.div(scalar);
+
+    REQUIRE(result[0] == 1);
+    REQUIRE(result[1] == 1.5);
+}
+
+
+TEST_CASE( "Vector-scalar division with operator", "[vec./]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto scalar = 2.;
+
+    auto result = vec / scalar;
+
+    REQUIRE(result[0] == 1);
+    REQUIRE(result[1] == 1.5);
+}
+
+
+TEST_CASE( "Vector dot product", "[vec.dot]" ) {
+
+    auto vec = LinAlg::VecR2({2., 3.});
+    auto vec2 = LinAlg::VecR2({2., 4.});
+
+    auto result = vec.dot(vec2);
+
+    REQUIRE(result == 16.);
+}
+
+TEST_CASE( "Vector magnitude", "[vec.mag]" ) {
+
+    auto vec = LinAlg::VecR2({4., 3.});
+    auto result = vec.mag();
+
+    REQUIRE(result == 5.);
 }

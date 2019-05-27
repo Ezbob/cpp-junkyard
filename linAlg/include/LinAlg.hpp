@@ -114,7 +114,7 @@ namespace LinAlg {
         }
 
         constexpr VecBase<T, Dim> operator -(const VecBase<T, Dim> &other) const noexcept {
-            return add(other);
+            return sub(other);
         }
 
         constexpr VecBase<T, Dim> operator *(const T &other) const noexcept {

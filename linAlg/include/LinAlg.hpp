@@ -7,6 +7,17 @@
 namespace LinAlg {
 
     template<typename T, std::size_t Dim>
+    using VectorComparator_t = bool(const T(&)[Dim], const T(&)[Dim]);
+
+    template<typename T, std::size_t Dim>
+    bool DefaultVectorComparator(const T(& vec1)[Dim], const T(& vec2)[Dim]) {
+        for (size_t i = 0; i < Dim; ++i)
+            if (vec1[i] != vec2[i])
+                return false;
+        return true;
+    }
+
+    template<typename T, std::size_t Dim, VectorComparator_t<T, Dim> Comparator = DefaultVectorComparator<T, Dim>>
     class VecBase {
 
     protected:
@@ -139,6 +150,14 @@ namespace LinAlg {
 
         constexpr VecBase<T, Dim> operator /(const VecBase<T, Dim> &other) const noexcept {
             return div(other);
+        }
+
+        constexpr bool operator ==(const VecBase<T, Dim> &other) const noexcept {
+            return Comparator(_data, other._data);
+        }
+
+        constexpr bool operator !=(const VecBase<T, Dim> &other) const noexcept {
+            return !Comparator(_data, other._data);
         }
 
         constexpr T dot(VecBase<T, Dim> &other) const noexcept {

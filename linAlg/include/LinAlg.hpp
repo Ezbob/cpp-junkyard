@@ -7,17 +7,17 @@
 namespace LinAlg {
 
     template<typename T, std::size_t Dim>
-    using VectorEqualsComparator_t = bool(const T(&)[Dim], const T(&)[Dim]);
+    using VectorEqualsComparator_t = bool(const T(&)[Dim], const T(&)[Dim]) noexcept;
 
     template<typename T, std::size_t Dim>
-    bool DefaultVectorEqualsComparator(const T(& vec1)[Dim], const T(& vec2)[Dim]) {
+    constexpr bool DefaultVectorEqualsComparator(const T(& vec1)[Dim], const T(& vec2)[Dim]) noexcept {
         for (size_t i = 0; i < Dim; ++i)
             if (vec1[i] != vec2[i])
                 return false;
         return true;
     }
 
-    template<typename T, std::size_t Dim, VectorEqualsComparator_t<T, Dim> Comparator = DefaultVectorEqualsComparator<T, Dim>>
+    template<typename T, std::size_t Dim, VectorEqualsComparator_t<T, Dim> EqualsComparator = DefaultVectorEqualsComparator<T, Dim>>
     class VecBase {
 
     protected:
@@ -153,11 +153,11 @@ namespace LinAlg {
         }
 
         constexpr bool operator ==(const VecBase<T, Dim> &other) const noexcept {
-            return Comparator(_data, other._data);
+            return EqualsComparator(_data, other._data);
         }
 
         constexpr bool operator !=(const VecBase<T, Dim> &other) const noexcept {
-            return !Comparator(_data, other._data);
+            return !EqualsComparator(_data, other._data);
         }
 
         constexpr T dot(VecBase<T, Dim> &other) const noexcept {

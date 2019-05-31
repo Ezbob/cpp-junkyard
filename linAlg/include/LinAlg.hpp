@@ -283,6 +283,61 @@ namespace LinAlg {
 
     using VecR3 = Vec3<double>;
 
+
+    // ---
+    // Matrix
+    // ---
+
+    template<typename T, std::size_t Row, std::size_t Column>
+    class MatBase {
+
+    private:
+        T _data[Row * Column] = {0};
+
+    public:
+        constexpr explicit MatBase(const T (&arg)[Row][Column]) noexcept {
+            for (std::size_t i = 0; i < Row; ++i) {
+                for (std::size_t j = 0; j < Column; ++j) {
+                    _data[i * Row + j] = arg[i][j];
+                }
+            }
+        }
+
+        constexpr explicit MatBase(const VecBase<T, Column> (&arg)[Row]) noexcept {
+            for (std::size_t i = 0; i < Row; ++i) {
+                for (std::size_t j = 0; j < Column; ++j) {
+                    _data[i * Row + j] = arg[i][j];
+                }
+            }
+        }
+
+        template<typename U, std::size_t R, std::size_t C>
+        friend constexpr std::ostream& operator <<(std::ostream&, const MatBase<U, R, C>&) noexcept;
+    };
+
+    template<typename U, std::size_t R, std::size_t C>
+    constexpr std::ostream& operator <<(std::ostream& os, const MatBase<U, R, C> &mat) noexcept {
+        os << "{";
+
+        for ( std::size_t i = 0; i < R; ++i ) {
+            os << "{";
+            for (std::size_t j = 0; j < C; ++j) {
+                os << mat._data[i * R + j];
+                if (j < (C - 1)) os << ", ";
+            }
+            if (i < (R - 1)) os << "},\n"; else os << "}";
+        }
+
+        os << "}";
+        return os;
+    }
+
+    template<typename T, std::size_t R, std::size_t C>
+    using Mat = MatBase<T, R, C>;
+
+    template<std::size_t R, std::size_t C>
+    using MatR = MatBase<double, R, C>; 
+
 }
 
 #endif

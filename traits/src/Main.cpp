@@ -163,7 +163,7 @@ struct Fun {
 
     template<typename T, typename std::enable_if<std::is_array<T>::value, int>::type = 0>
     void afunction() {
-        std::cout << "It is I, the fabious function that does nothing but brag" << std::endl;
+        std::cout << "It is I, the fabulous function that does nothing but brag" << std::endl;
     }
 };
 

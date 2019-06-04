@@ -126,6 +126,47 @@ template<typename T, typename U>
 constexpr bool is_assignable = has_expression<assign_expression, T, U>;
 
 
+template<typename T, typename Enabled = void>
+struct A {
+    constexpr static int value = 11;
+};
+
+template<typename T>
+struct A<T, typename std::enable_if<is_assignable<int, T>>::type> {
+    constexpr static int value = 42;
+};
+
+template<typename T, typename Enabled = void>
+struct Boat {
+    constexpr static bool hasAHole = false;
+
+    std::string makeSound() {
+        return "Sail sail";
+    }
+};
+
+template<typename T>
+struct Boat<T, typename std::enable_if<std::is_integral<T>::value>::type> {
+    constexpr static bool hasAHole = true;
+
+    std::string makeSound() {
+        return "Sink sink";
+    }
+};
+
+struct Fun {
+
+    template<typename T, typename std::enable_if<!std::is_array<T>::value, int>::type = 0>
+    void afunction() {
+        std::cout << "I am boring" << std::endl;
+    }
+
+    template<typename T, typename std::enable_if<std::is_array<T>::value, int>::type = 0>
+    void afunction() {
+        std::cout << "It is I, the fabious function that does nothing but brag" << std::endl;
+    }
+};
+
 class Bull {
     int a = 0;
 public:
@@ -155,8 +196,35 @@ int main() {
 
     std::cout << is_incrementable<decltype(bull)> << std::endl;
 
-    static_assert(is_assignable<int, double>, "Ooof");
-    static_assert(is_assignable<int, long>, "Ooof");
+    static_assert(is_assignable<int, double>, "Ooof 1");
+    static_assert(is_assignable<int, long>, "Ooof 2");
+
+    static_assert(A<double>::value == 42);
+    static_assert(A<std::string>::value == 11);
+
+    static_assert(Boat<int>::hasAHole == true);
+
+    auto boatA = Boat<int>{};
+    auto boatB = Boat<double>{};
+
+    std::cout << boatA.makeSound() << std::endl;
+    std::cout << boatB.makeSound() << std::endl;
+
+    if constexpr (Boat<int>::hasAHole) {
+        std::cout << "Integer boats has holes in them for some reason" << std::endl;
+    } else {
+        std::cout << "Non-integer boats are fine" << std::endl;
+    }
+
+    auto anObject = Fun{};
+
+    int k[3] = {2, 3, 4};
+
+    static_assert(std::is_array<decltype(k)>::value);
+
+    anObject.afunction<decltype(k)>();
+
+    anObject.afunction<decltype(a)>();
 
     return 0;
 }

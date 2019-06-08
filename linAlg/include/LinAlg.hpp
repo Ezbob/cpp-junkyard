@@ -19,15 +19,11 @@ namespace LinAlg {
     }
 
     template<typename T, std::size_t Dim, VectorEqualsComparator_t<T, Dim> EqualsComparator = DefaultVectorEqualsComparator<T, Dim>>
-    class VecBase {
-
-    protected:
+    struct VecBase {
         T _data[Dim] = {0};
-
-    public:
         constexpr static std::size_t dim = Dim;
 
-        constexpr VecBase() noexcept {};
+        constexpr VecBase() noexcept = default;
 
         constexpr explicit VecBase(const T(&args)[Dim]) noexcept {
             for (std::size_t i = 0; i < Dim; ++i) {
@@ -293,13 +289,14 @@ namespace LinAlg {
     // Matrix
     // ---
 
-    template<typename T, std::size_t Row, std::size_t Column>
-    class MatBase {
-
-    private:
+    template<typename T, std::size_t Row, std::size_t Column = Row>
+    struct MatBase {
+        static constexpr std::size_t rows = Row;
+        static constexpr std::size_t columns = Column;
         T _data[Row * Column] = {0};
 
-    public:
+        constexpr MatBase() noexcept = default;
+
         constexpr explicit MatBase(const T (&arg)[Row][Column]) noexcept {
             for (std::size_t i = 0; i < Row; ++i) {
                 for (std::size_t j = 0; j < Column; ++j) {
@@ -314,6 +311,72 @@ namespace LinAlg {
                     _data[i * Row + j] = arg[i][j];
                 }
             }
+        }
+
+        constexpr explicit MatBase(const T(&arg)[Row * Column]) noexcept {
+            for (std::size_t i = 0; i < Row * Column; ++i) {
+                _data[i] = arg[i];
+            }
+        }
+
+        constexpr MatBase<T, Row, Column> add(const MatBase<T, Row, Column> &other) noexcept {
+            MatBase<T, Row, Column> result;
+            for (std::size_t i = 0; i < Row; ++i) {
+                for (std::size_t j = 0; j < Column; ++j) {
+                    result._data[i * Row + j] = _data[i * Row + j] + other._data[i * Row + j];
+                }
+            }
+
+            return result;
+        }
+
+        constexpr MatBase<T, Row, Column> sub(const MatBase<T, Row, Column> &other) noexcept {
+            MatBase<T, Row, Column> result;
+            for (std::size_t i = 0; i < Row; ++i) {
+                for (std::size_t j = 0; j < Column; ++j) {
+                    result._data[i * Row + j] += _data[i * Row + j] - other._data[i * Row + j];
+                }
+            }
+
+            return result;
+        }
+
+
+        constexpr MatBase<T, Row, Column> operator +(const MatBase<T, Row, Column> &other) noexcept {
+            return add(other);
+        }
+
+        constexpr MatBase<T, Row, Column> operator -(const MatBase<T, Row, Column> &other) noexcept {
+            return sub(other);
+        }
+
+        constexpr MatBase<T, Row, Column> transpose() noexcept {
+            MatBase<T, Column, Row> result;
+
+            for ( std::size_t i = 0; i < Row; ++i ) {
+                for ( std::size_t j = 0; j < Column; ++j ) {
+                    result._data[j * Column + i] = _data[i * Row + j];
+                }
+            }
+
+            return result;
+        }
+
+        constexpr static MatBase<T, Row, Column> identity() noexcept {
+            static_assert(Row == Column, "Dimension must match for identity matrix");
+            MatBase<T, Row, Column> result;
+            for ( std::size_t i = 0; i < Row; ++i ) {
+                result._data[i * Row + i] = 1;
+            }
+            return result;
+        }
+
+        constexpr T *begin() noexcept {
+            return _data[0];
+        }
+
+        constexpr T *end() noexcept {
+            return _data[Row * Column];
         }
 
         template<typename U, std::size_t R, std::size_t C>
@@ -337,10 +400,11 @@ namespace LinAlg {
         return os;
     }
 
-    template<typename T, std::size_t R, std::size_t C>
+
+    template<typename T, std::size_t R, std::size_t C = R>
     using Mat = MatBase<T, R, C>;
 
-    template<std::size_t R, std::size_t C>
+    template<std::size_t R, std::size_t C = R>
     using MatR = MatBase<double, R, C>; 
 
 }

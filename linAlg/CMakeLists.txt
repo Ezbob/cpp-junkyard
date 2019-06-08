@@ -6,6 +6,8 @@ project("linAlg")
 
 set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -Wshadow -pedantic -Weffc++")
 
-add_executable("Main" "src/Main.cpp")
+add_executable("main" "src/Main.cpp")
+
+#add_executable("tests" "src/Tests.cpp")
 
 include_directories("linAlg", "include")

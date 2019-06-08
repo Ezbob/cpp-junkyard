@@ -23,21 +23,41 @@ int main() {
 
     */
 
-    auto m = LinAlg::MatR<3, 3>({
+    auto m = LinAlg::MatR<3>({
         {1., 2., 3.},
         {4., 5., 5.},
-        {2,  1,  3}
+        {2., 1., 3.}
     });
 
-    std::cout << m << std::endl;
+    auto M = LinAlg::MatR<3>({
+        1., 2., 3.,
+        4., 5., 6.,
+        1., 4., 5.,
+    });
 
-    auto A = LinAlg::MatR<3, 3>({
-        LinAlg::VecR3({2., 2., 1.}),
-        LinAlg::VecR3({1., 2., 1.})
+    std::cout << "m " << m << std::endl;
+
+    std::cout << "M " << M << std::endl;
+
+    std::cout << "Sum: " << (M  + m) << std::endl;
+
+    auto r = LinAlg::VecR3({2., 2., 1.});
+
+    auto A = LinAlg::MatR<3>({
+        r,
+        r,
+        r
     });
 
     std::cout << A << std::endl;
 
+    std::cout << (A + A) << std::endl;
+
+    std::cout << A.transpose() << std::endl;
+
+    constexpr auto I = LinAlg::MatR<4>::identity();
+
+    std::cout << I << std::endl;
 
     return 0;
 }

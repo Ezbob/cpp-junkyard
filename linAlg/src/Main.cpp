@@ -35,11 +35,11 @@ int main() {
         1., 4., 5.,
     });
 
-    std::cout << "m " << m << std::endl;
+    std::cout << "m " << m << '\n';
 
-    std::cout << "M " << M << std::endl;
+    std::cout << "M " << M << '\n';
 
-    std::cout << "Sum: " << (M  + m) << std::endl;
+    std::cout << "Sum: " << (M  + m) << '\n';
 
     auto r = LinAlg::VecR3({2., 2., 1.});
 
@@ -49,15 +49,17 @@ int main() {
         r
     });
 
-    std::cout << A << std::endl;
+    std::cout << A << '\n';
 
-    std::cout << (A + A) << std::endl;
+    std::cout << (A + A) << '\n';
 
-    std::cout << A.transpose() << std::endl;
+    std::cout << A.transpose() << '\n';
 
     constexpr auto I = LinAlg::MatR<4>::identity();
 
-    std::cout << I << std::endl;
+    std::cout << (I * 32.0) << '\n';
+
+    std::cout << I << '\n';
 
     return 0;
 }

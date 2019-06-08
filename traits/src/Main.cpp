@@ -24,7 +24,7 @@ struct is_pointer<T *> {
 template<typename T>
 constexpr void print_if_int(const T &value) {
     if (is_int<T>::value) {
-        std::cout << "is int" << std::endl;
+        std::cout << "is int and has value: " << value << std::endl;
     } else {
         std::cout << "not is int" << std::endl;
     }
@@ -211,7 +211,7 @@ int main() {
     std::cout << boatB.makeSound() << std::endl;
 
     if constexpr (Boat<int>::hasAHole) {
-        std::cout << "Integer boats has holes in them for some reason" << std::endl;
+        std::cout << "Integer boats have holes in them for some reason" << std::endl;
     } else {
         std::cout << "Non-integer boats are fine" << std::endl;
     }
@@ -225,6 +225,9 @@ int main() {
     anObject.afunction<decltype(k)>();
 
     anObject.afunction<decltype(a)>();
+
+    [[maybe_unused]]
+    auto anotherObject = Fun{};
 
     return 0;
 }

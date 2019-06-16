@@ -4,6 +4,9 @@ namespace strongtypes {
     template<typename T>
     using IsNotReference = typename std::enable_if_t<!std::is_reference_v<T>, void>;
 
+    template<std::size_t id>
+    struct AnnomynousTag;
+
     template<typename T, typename Parameter>
     class NamedType {
 
@@ -34,9 +37,9 @@ namespace strongtypes {
     };
 }
 
-using Area = strongtypes::NamedType<int, struct AreaTag>;
-using Width = strongtypes::NamedType<int, struct WidthTag>;
-using Height = strongtypes::NamedType<int, struct HeightTag>;
+using Area = strongtypes::NamedType<int, strongtypes::AnnomynousTag<0>>;
+using Width = strongtypes::NamedType<int, strongtypes::AnnomynousTag<1>>;
+using Height = strongtypes::NamedType<int, strongtypes::AnnomynousTag<2>>;
 
 Area calculateRectangleArea(Width w, Height h) {
     return Area(w.get() * h.get());
@@ -46,8 +49,8 @@ void calculateRectangleArea(Area &out, Width w, Height h) {
     out.get() = w.get() * h.get();
 }
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
+
     Area a = calculateRectangleArea(Width(2), Height(4));
 
     Area b{0};

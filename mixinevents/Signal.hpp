@@ -45,7 +45,6 @@ public:
         return callback_id < slots.size();
     }
 
-
 };
 
 #endif

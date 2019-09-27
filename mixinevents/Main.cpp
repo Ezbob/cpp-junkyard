@@ -1,12 +1,12 @@
 
 #include <iostream>
 #include <functional>
-#include <chrono>
-#include <thread>
-#include "signals.hpp"
+
+#include "Signal.hpp"
+#include "Resource.hpp"
+#include "ResourceFetcher.hpp"
 
 Signal<int> g_sig;
-
 
 class A {
     int b = 32;
@@ -29,44 +29,6 @@ void connectStuff() {
     g_sig.connect(f);
 }
 
-
-template<typename Derived_t>
-class ReadyEvent {
-
-    Signal<const Derived_t &> m_signal_ready;
-
-protected:
-    void _emit_ready() {
-        auto r = static_cast<const Derived_t *>(this);
-        m_signal_ready.emit(*r);
-    }
-
-public:
-    ReadyEvent() {}
-    virtual ~ReadyEvent() = default;
-
-    void on_ready(std::function<void (const Derived_t &)> &f) {
-        m_signal_ready.connect(f);
-    }
-
-    void on_ready(std::function<void (const Derived_t &)> &&f) {
-        m_signal_ready.connect(f);
-    }
-};
-
-class AResource : public ReadyEvent<AResource> {
-
-public:
-    int stuff = 32;
-
-    void fetch_some_resource() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        stuff += 2;
-        _emit_ready();
-    }
-};
-
-
 int main() {
     //std::cout << "Hello world" << std::endl;
 
@@ -80,15 +42,16 @@ int main() {
 
     g_sig.emit(32);
 
-    AResource resource;
+    ResourceFetcher fetcher; // persistence fetcher
+    Resource &resource = fetcher; // fetcher is a implementor where Resource is common interface
 
-    auto f = [](const AResource &a) {
-        std::cout << "Hello!" << a.stuff << "\n";
+    auto f = [](const Resource &a) {
+        std::cout << "Hello! " << a.stuff << ", " << a.blah << "\n";
     };
 
     resource.on_ready(f);
 
-    resource.fetch_some_resource();
+    resource.get(); // should be non-blocking
 
     return 0;
 }

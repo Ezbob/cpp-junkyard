@@ -12,8 +12,11 @@ class DataSignals {
     } __signals__;
 
 protected:
-    void _emit_ready() {
-        auto r = static_cast<const Derived_t *>(this);
+    void _emit_ready(const Derived_t &r) {
+        __signals__.ready.emit(r);
+    }
+
+    void _emit_ready(const Derived_t *r) {
         __signals__.ready.emit(*r);
     }
 

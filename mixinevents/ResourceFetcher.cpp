@@ -7,5 +7,5 @@ void ResourceFetcher::get() {
 
     stuff = 32;
     blah = 2.3;
-    _emit_ready();
+    _emit_ready(this);
 }

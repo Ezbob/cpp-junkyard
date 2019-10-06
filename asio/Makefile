@@ -9,7 +9,7 @@ _build: ${BUILD_DIR}
 
 ${BUILD_DIR}:
 	@mkdir $@
-	@cd $@ && cmake -G "${BUILD_TOOL_CMAKE}" ..
+	@cd $@ && cmake -G "${BUILD_TOOL_CMAKE}" -DTARGET_EXE=Main ..
 
 clean:
 	${RM} -r ${BUILD_DIR}

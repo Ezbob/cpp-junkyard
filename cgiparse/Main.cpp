@@ -15,11 +15,10 @@ std::string getter(const std::string &key) {
     } else if (key == "llll") {
         return "";
     }
-    
     return std::string(key);
 }
 
-struct CgiArguments : public cgiparse::CgiInputParser {
+struct CgiArguments : public cgiparse::CgiInputParser<> {
     uint16_t a;
     uint8_t c;
     int32_t d;
@@ -28,7 +27,7 @@ struct CgiArguments : public cgiparse::CgiInputParser {
 
     int64_t l = 30;
 
-    void Parse(cgiparse::Getfunction_t &getter) {
+    void Parse(cgiparse::Getter_t &getter) {
         cgiInput(getter, a,  "done");
         cgiInput(getter, c, "blu");
         cgiInput(getter, d, "d");
@@ -38,7 +37,7 @@ struct CgiArguments : public cgiparse::CgiInputParser {
     }
 };
 
-int main(int, char **) {
+int main(int argc, char **argv) {
 
     CgiArguments args;
     args.GetCgiArgs(getter);
@@ -48,7 +47,7 @@ int main(int, char **) {
 
         auto errors = args.getErrors();
         for (auto error : errors) {
-            std::cout << error.first << std::endl;
+            std::cout << error.first << "<->" << static_cast<uint32_t>(error.second) << std::endl;
         }
     } else {
         std::cout << "hello a: " << args.a << "\n";

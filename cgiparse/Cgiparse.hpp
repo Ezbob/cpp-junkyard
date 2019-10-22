@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <iomanip>
 #include <functional>
+#include <iterator>
+#include <sstream>
 #include <map>
 
 namespace cgiparse {
@@ -71,9 +73,21 @@ namespace cgiparse {
         }
     };
 
+    template<char delimiter>
+    class WordDelimitedBy : public std::string {};
+
+    template<char delimiter>
+    std::istream &operator>>(std::istream &in_stream, WordDelimitedBy<delimiter> &output) {
+        std::getline(in_stream, output, delimiter);
+        return in_stream;
+    }
+
     template<typename Deserializer_T = DefaultDeserializer>
     class CgiInputParser {
-
+        struct CgiInputError {
+            CgiInputErrorTypes type;
+            std::size_t index;
+        };
     public:
         virtual ~CgiInputParser() = default;
 
@@ -91,7 +105,7 @@ namespace cgiparse {
             return m_errors.size() > 0;
         }
 
-        std::map<std::string, CgiInputErrorTypes> &getErrors() {
+        std::map<std::string, CgiInputError> &getErrors() {
             return m_errors;
         }
 
@@ -99,60 +113,207 @@ namespace cgiparse {
         virtual void Parse(cgiparse::Getter_t &getter) = 0;
 
         template<typename T, typename std::enable_if<!std::is_floating_point<T>::value, int>::type = 0>
-        void cgiInput(cgiparse::Getter_t &getter, T &argument, const std::string key, int base = 10, std::size_t *pos = 0) {
+        void cgiInput(cgiparse::Getter_t &getter, T &argument, const std::string &key, int base = 10, std::size_t *pos = 0) {
             auto str = getter(key);
-            CgiInputErrorTypes result = m_deserializer.deserialize(argument, str, base, pos);
+            auto result = m_deserializer.deserialize(argument, str, base, pos);
             if (result != CgiInputErrorTypes::OK) {
-                m_errors.emplace(std::make_pair(key, result));
+                m_errors.emplace(std::make_pair(key, CgiInputError{ result, 0 }));
             }
         }
 
         template<typename T, typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
-        void cgiInput(cgiparse::Getter_t &getter, T &argument, const std::string key, std::size_t *pos = 0) {
+        void cgiInput(cgiparse::Getter_t &getter, T &argument, const std::string &key, std::size_t *pos = 0) {
             auto str = getter(key);
-            CgiInputErrorTypes result = m_deserializer.deserialize(argument, str, pos);
+            auto result = m_deserializer.deserialize(argument, str, pos);
             if (result != CgiInputErrorTypes::OK) {
-                m_errors.emplace(std::make_pair(key, result));
+                CgiInputError o = {};
+                o.type = result;
+                o.index = 0;
+                m_errors.emplace(std::make_pair(key, o));
             }
         }
 
-        void cgiInput(cgiparse::Getter_t &getter, std::string &argument, const std::string key) {
+        template<typename T, char delimiter = ',', typename std::enable_if<!std::is_floating_point<T>::value, int>::type = 0>
+        void cgiInput(cgiparse::Getter_t &getter, std::vector<T> &argument, const std::string &key, int base = 10, std::size_t *pos = 0) {
+            std::string str = getter(key);
+            std::istringstream iss(str);
+
+            std::vector<std::string> splitted(
+                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
+                std::istream_iterator<WordDelimitedBy<delimiter>>()
+            );
+            
+            argument.resize(splitted.size());
+            for (size_t i = 0; i < splitted.size(); ++i) {
+                CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i], base, pos);
+                if (result != CgiInputErrorTypes::OK) {
+                    CgiInputError o = {};
+                    o.type = result;
+                    o.index = i;
+                    m_errors.emplace(std::make_pair(key, o));
+                }
+            }
+        }
+
+        template<typename T, char delimiter = ',', typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
+        void cgiInput(cgiparse::Getter_t &getter, std::vector<T> &argument, const std::string &key, std::size_t *pos = 0) {
+            std::string str = getter(key);
+            std::istringstream iss(str);
+
+            std::vector<std::string> splitted(
+                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
+                std::istream_iterator<WordDelimitedBy<delimiter>>()
+            );
+            
+            argument.resize(splitted.size());
+            for (size_t i = 0; i < splitted.size(); ++i) {
+                CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i], pos);
+                if (result != CgiInputErrorTypes::OK) {
+                    CgiInputError o = {};
+                    o.type = result;
+                    o.index = i;
+                    m_errors.emplace(std::make_pair(key, o));
+                }
+            }
+        }
+        
+        template<char delimiter = ','>
+        void cgiInput(cgiparse::Getter_t &getter, std::vector<std::string> &argument, const std::string &key, std::size_t *pos = 0) {
+            std::string str = getter(key);
+            std::istringstream iss(str);
+
+            std::vector<std::string> splitted(
+                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
+                std::istream_iterator<WordDelimitedBy<delimiter>>()
+            );
+            
+            argument.resize(splitted.size());
+            for (size_t i = 0; i < splitted.size(); ++i) {
+                CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i]);
+                if (result != CgiInputErrorTypes::OK) {
+                    CgiInputError o = {};
+                    o.type = result;
+                    o.index = i;
+                    m_errors.emplace(std::make_pair(key, o));
+                }
+            }
+        }
+
+        void cgiInput(cgiparse::Getter_t &getter, std::string &argument, const std::string &key) {
             auto str = getter(key);
-            CgiInputErrorTypes result = m_deserializer.deserialize(argument, str);
+            auto result = m_deserializer.deserialize(argument, str);
             if (result != CgiInputErrorTypes::OK) {
-                m_errors.emplace(std::make_pair(key, result));
+                CgiInputError o = {};
+                o.type = result;
+                o.index = 0;
+                m_errors.emplace(std::make_pair(key, o));
             }
         }
 
         template<typename T, typename std::enable_if<!std::is_floating_point<T>::value, int>::type = 0>
-        void cgiInputOptional(cgiparse::Getter_t &getter, T &argument, const std::string key, int base = 10, std::size_t *pos = 0) {
+        void cgiInputOptional(cgiparse::Getter_t &getter, T &argument, const std::string &key, int base = 10, std::size_t *pos = 0) {
             auto str = getter(key);
-            CgiInputErrorTypes result = m_deserializer.deserialize(argument, str, base, pos);
+            auto result = m_deserializer.deserialize(argument, str, base, pos);
             if (result != CgiInputErrorTypes::OK && result != CgiInputErrorTypes::MISSING) {
-                m_errors.emplace(std::make_pair(key, result));
+                CgiInputError o = {};
+                o.type = result;
+                o.index = 0;
+                m_errors.emplace(std::make_pair(key, o));
             }
         }
 
         template<typename T, typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
-        void cgiInputOptional(cgiparse::Getter_t &getter, T &argument, const std::string key, std::size_t *pos = 0) {
+        void cgiInputOptional(cgiparse::Getter_t &getter, T &argument, const std::string &key, std::size_t *pos = 0) {
             auto str = getter(key);
-            CgiInputErrorTypes result = m_deserializer.deserialize(argument, str, pos);
+            auto result = m_deserializer.deserialize(argument, str, pos);
             if (result != CgiInputErrorTypes::OK && result != CgiInputErrorTypes::MISSING) {
-                m_errors.emplace(std::make_pair(key, result));
+                CgiInputError o = {};
+                o.type = result;
+                o.index = 0;
+                m_errors.emplace(std::make_pair(key, o));
             }
         }
 
-        void cgiInputOptional(cgiparse::Getter_t &getter, std::string &argument, const std::string key) {
+        template<typename T, char delimiter = ',', typename std::enable_if<!std::is_floating_point<T>::value, int>::type = 0>
+        void cgiInputOptional(cgiparse::Getter_t &getter, std::vector<T> &argument, const std::string &key, int base = 10, std::size_t *pos = 0) {
+            std::string str = getter(key);
+            std::istringstream iss(str);
+
+            std::vector<std::string> splitted(
+                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
+                std::istream_iterator<WordDelimitedBy<delimiter>>()
+            );
+            
+            argument.resize(splitted.size());
+            for (size_t i = 0; i < splitted.size(); ++i) {
+                CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i], base, pos);
+                if (result != CgiInputErrorTypes::OK && result != CgiInputErrorTypes::MISSING) {
+                    CgiInputError o = {};
+                    o.type = result;
+                    o.index = i;
+                    m_errors.emplace(std::make_pair(key, o));
+                }
+            }
+        }
+
+        template<typename T, char delimiter = ',', typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
+        void cgiInputOptional(cgiparse::Getter_t &getter, std::vector<T> &argument, const std::string &key, std::size_t *pos = 0) {
+            std::string str = getter(key);
+            std::istringstream iss(str);
+
+            std::vector<std::string> splitted(
+                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
+                std::istream_iterator<WordDelimitedBy<delimiter>>()
+            );
+            
+            argument.resize(splitted.size());
+            for (size_t i = 0; i < splitted.size(); ++i) {
+                CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i], pos);
+                if (result != CgiInputErrorTypes::OK && result != CgiInputErrorTypes::MISSING) {
+                    CgiInputError o = {};
+                    o.type = result;
+                    o.index = i;
+                    m_errors.emplace(std::make_pair(key, o));
+                }
+            }
+        }
+        
+        template<char delimiter = ','>
+        void cgiInputOptional(cgiparse::Getter_t &getter, std::vector<std::string> &argument, const std::string &key, std::size_t *pos = 0) {
+            std::string str = getter(key);
+            std::istringstream iss(str);
+
+            std::vector<std::string> splitted(
+                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
+                std::istream_iterator<WordDelimitedBy<delimiter>>()
+            );
+            
+            argument.resize(splitted.size());
+            for (size_t i = 0; i < splitted.size(); ++i) {
+                CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i]);
+                if (result != CgiInputErrorTypes::OK && result != CgiInputErrorTypes::MISSING) {
+                    CgiInputError o = {};
+                    o.type = result;
+                    o.index = i;
+                    m_errors.emplace(std::make_pair(key, o));
+                }
+            }
+        }
+
+        void cgiInputOptional(cgiparse::Getter_t &getter, std::string &argument, const std::string &key) {
             auto str = getter(key);
-            CgiInputErrorTypes result = m_deserializer.deserialize(argument, str);
+            auto result = m_deserializer.deserialize(argument, str);
             if (result != CgiInputErrorTypes::OK && result != CgiInputErrorTypes::MISSING) {
-                m_errors.emplace(std::make_pair(key, result));
+                CgiInputError o = {};
+                o.type = result;
+                o.index = 0;
+                m_errors.emplace(std::make_pair(key, o));
             }
         }
 
     private:
         Deserializer_T m_deserializer;
-        std::map<std::string, CgiInputErrorTypes> m_errors;
+        std::map<std::string, CgiInputError> m_errors;
 
         void resetErrors() {
             m_errors.clear();

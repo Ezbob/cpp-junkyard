@@ -138,12 +138,13 @@ namespace cgiparse {
             std::string str = getter(key);
             std::istringstream iss(str);
 
-            std::vector<std::string> splitted(
-                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
-                std::istream_iterator<WordDelimitedBy<delimiter>>()
-            );
-            
+            std::vector<std::string> splitted {
+                std::istream_iterator<WordDelimitedBy<delimiter>>{iss},
+                std::istream_iterator<WordDelimitedBy<delimiter>>{}
+            };
+
             argument.resize(splitted.size());
+
             for (size_t i = 0; i < splitted.size(); ++i) {
                 CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i], base, pos);
                 if (result != CgiInputErrorTypes::OK) {
@@ -160,12 +161,13 @@ namespace cgiparse {
             std::string str = getter(key);
             std::istringstream iss(str);
 
-            std::vector<std::string> splitted(
-                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
-                std::istream_iterator<WordDelimitedBy<delimiter>>()
-            );
-            
+            std::vector<std::string> splitted {
+                std::istream_iterator<WordDelimitedBy<delimiter>>{iss},
+                std::istream_iterator<WordDelimitedBy<delimiter>>{}
+            };
+
             argument.resize(splitted.size());
+
             for (size_t i = 0; i < splitted.size(); ++i) {
                 CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i], pos);
                 if (result != CgiInputErrorTypes::OK) {
@@ -176,17 +178,17 @@ namespace cgiparse {
                 }
             }
         }
-        
+
         template<char delimiter = ','>
         void cgiInput(cgiparse::Getter_t &getter, std::vector<std::string> &argument, const std::string &key, std::size_t *pos = 0) {
             std::string str = getter(key);
             std::istringstream iss(str);
 
-            std::vector<std::string> splitted(
-                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
-                std::istream_iterator<WordDelimitedBy<delimiter>>()
-            );
-            
+            std::vector<std::string> splitted {
+                std::istream_iterator<WordDelimitedBy<delimiter>>{iss},
+                std::istream_iterator<WordDelimitedBy<delimiter>>{}
+            };
+
             argument.resize(splitted.size());
             for (size_t i = 0; i < splitted.size(); ++i) {
                 CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i]);
@@ -243,7 +245,7 @@ namespace cgiparse {
                 (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
                 std::istream_iterator<WordDelimitedBy<delimiter>>()
             );
-            
+
             argument.resize(splitted.size());
             for (size_t i = 0; i < splitted.size(); ++i) {
                 CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i], base, pos);
@@ -261,12 +263,13 @@ namespace cgiparse {
             std::string str = getter(key);
             std::istringstream iss(str);
 
-            std::vector<std::string> splitted(
-                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
-                std::istream_iterator<WordDelimitedBy<delimiter>>()
-            );
-            
+            std::vector<std::string> splitted{
+                std::istream_iterator<WordDelimitedBy<delimiter>>{iss},
+                std::istream_iterator<WordDelimitedBy<delimiter>>{}
+            };
+
             argument.resize(splitted.size());
+
             for (size_t i = 0; i < splitted.size(); ++i) {
                 CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i], pos);
                 if (result != CgiInputErrorTypes::OK && result != CgiInputErrorTypes::MISSING) {
@@ -277,18 +280,19 @@ namespace cgiparse {
                 }
             }
         }
-        
+
         template<char delimiter = ','>
         void cgiInputOptional(cgiparse::Getter_t &getter, std::vector<std::string> &argument, const std::string &key, std::size_t *pos = 0) {
             std::string str = getter(key);
             std::istringstream iss(str);
 
-            std::vector<std::string> splitted(
-                (std::istream_iterator<WordDelimitedBy<delimiter>>(iss)),
-                std::istream_iterator<WordDelimitedBy<delimiter>>()
-            );
-            
+            std::vector<std::string> splitted {
+                std::istream_iterator<WordDelimitedBy<delimiter>>{iss},
+                std::istream_iterator<WordDelimitedBy<delimiter>>{}
+            };
+
             argument.resize(splitted.size());
+
             for (size_t i = 0; i < splitted.size(); ++i) {
                 CgiInputErrorTypes result = m_deserializer.deserialize(argument[i], splitted[i]);
                 if (result != CgiInputErrorTypes::OK && result != CgiInputErrorTypes::MISSING) {

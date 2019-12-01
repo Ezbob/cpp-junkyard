@@ -1,3 +1,6 @@
 [submodule "asio/modules/asio"]
 	path = asio/modules/asio
 	url = https://github.com/chriskohlhoff/asio
+[submodule "timer/modules/asio"]
+	path = timer/modules/asio
+	url = https://github.com/chriskohlhoff/asio

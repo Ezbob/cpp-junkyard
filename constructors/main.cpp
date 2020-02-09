@@ -1,6 +1,13 @@
 #include <iostream>
 #include <algorithm>
 
+/*
+ * Class A here implements the Rule of Five for a class containing
+ * non-trivial member (this being the heap allocated int array type 'arr').
+ * The Rule of Five ensures that pointers are not shared between instances,
+ * which can lead to memory errors due to a break-down of class encapsulation.
+ *
+ */
 class A
 {
 private:
@@ -12,6 +19,10 @@ public:
     {
         arr = new int[count];
     }
+    
+    /**
+     * 1. Non-default destructor implementation. 
+     */
     ~A()
     {
         if (arr)
@@ -21,12 +32,31 @@ public:
         }
     }
 
+    /**
+     * 2. Copy constructor: makes a new copy of an already existing instance 
+     */
     A(A const &other) : count(other.count), arr(new int[other.count])
     {
         std::cout << "copy construct\n";
         std::copy(other.arr, other.arr + count, arr);
     }
+    
+    /*One could also have wrote:
+    *
+    * A(A const&) = default;
+    *
+    * This would explicitly state that we want the default behaviour of shallow copy, copy constructor
+    * to be made. Another options would be to delete the function:
+    *
+    * A(A const&) = delete;
+    * 
+    * These tricks holds for the other Rule of Five subjects.
+    */
 
+    /** 
+     * 3. Copy assignment. Note the difference with the copy constructor; the other instance
+     * can be the same instance as the class itself since you can do something like 'A a(10); a = a;'
+     */
     A &operator=(A const &other)
     {
         std::cout << "copy assign\n";
@@ -42,6 +72,10 @@ public:
         return *this;
     }
 
+    /**
+     * 4. Move construction. This is used when 'this' instance is constructed by a temporary or
+     * by a std::move of some other instance. These other instances are also called 'rvalues'
+     */
     A(A &&other) : count(other.count)
     {
         std::cout << "move construct\n";
@@ -50,6 +84,10 @@ public:
         other.arr = nullptr;
     }
 
+    /**
+     * 5. Move assignment operator. Does the same thing has the move constructor except for
+     * both instances has been initialized.
+     */
     A &operator=(A &&other)
     {
         std::cout << "move assign\n";
@@ -70,7 +108,6 @@ int main()
 {
     A a(20);
     A c(20);
-
 
     A b = a; // copy construct
 

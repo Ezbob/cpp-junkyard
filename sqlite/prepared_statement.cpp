@@ -120,8 +120,3 @@ prepared_statement::operator sqlite3_stmt *()
     return m_stmt;
 }
 
-std::shared_ptr<prepared_statement> prepared_statement::create()
-{
-    return std::make_shared<prepared_statement>();
-}
-

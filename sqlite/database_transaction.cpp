@@ -11,20 +11,10 @@ database_transaction::database_transaction(std::shared_ptr<database_connection> 
 
 database_transaction::~database_transaction()
 {
-    try
-    {
-        if (m_has_caught_exception)
-        {
-            rollback_transaction();
-        }
-        else
-        {
-            end_transaction();
-        }
-    }
-    catch (...)
-    {
-        std::cerr << "Error when issueing transaction rollback\n";
+    try {
+        end_transaction();
+    } catch(std::exception const& e) {
+        std::cerr << "Transaction commit error: " << e.what() << "\n";
     }
 }
 
@@ -67,16 +57,23 @@ void database_transaction::rollback_transaction()
 
 void database_transaction::execute_query(idatabase_query &q)
 {
-    try
+
+    std::shared_ptr<database_connection> db;
+    if (db = m_db.lock())
     {
-        std::shared_ptr<database_connection> db;
-        if (db = m_db.lock())
+        try
         {
             db->execute_query(q);
         }
-    }
-    catch (database_exception const &e)
-    {
-        m_has_caught_exception = true;
+        catch (database_exception const &e)
+        {
+            std::string new_err = e.what();
+            new_err += ": ";
+            new_err += sqlite3_errmsg((sqlite3 *)db.get());
+
+            rollback_transaction();
+
+            throw database_exception(new_err);
+        }
     }
 }

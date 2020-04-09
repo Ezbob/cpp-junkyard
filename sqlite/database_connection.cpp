@@ -1,5 +1,6 @@
 
 #include "database_connection.hpp"
+#include <iostream>
 
 using namespace sqlite_connect;
 
@@ -28,11 +29,17 @@ void database_connection::execute_query(idatabase_query &query)
         throw database_exception("Database is not open");
     }
 
-    auto prepared = prepared_statement::create();
+    auto prepared = std::make_shared<prepared_statement>();
+    try {
+        prepared->prepare(m_db, query.sql());
 
-    prepared->prepare(m_db, query.sql());
-
-    query.execute(prepared);
+        query.execute(prepared);
+    } catch(database_exception const &e) {
+        std::string new_err = e.what();
+        new_err += ": ";
+        new_err += sqlite3_errmsg(m_db);
+        throw database_exception(new_err);
+    }
 }
 
 bool database_connection::is_open() const

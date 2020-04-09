@@ -50,7 +50,6 @@ namespace sqlite_connect {
 
         operator sqlite3_stmt *();
 
-        static std::shared_ptr<prepared_statement> create();
     };
 
 };

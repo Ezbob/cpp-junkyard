@@ -15,7 +15,7 @@ struct create_table_query : public sqlite_connect::idatabase_query
 {
     const char *sql() const override
     {
-        return "CREATE TABLE IF NOT EXISTS tab ( x INTEGER, y REAL )";
+        return "CREATE TABLE IF NOT EXISTS tab ( id INTEGER PRIMARY KEY, x INTEGER, y REAL )";
     }
 };
 
@@ -23,7 +23,15 @@ struct insert_query : public sqlite_connect::idatabase_query
 {
     const char *sql() const override
     {
-        return "INSERT OR IGNORE INTO tab (x, y) VALUES (32, 2.3), (42, 2.7)";
+        return "INSERT OR IGNORE INTO tab (x, y) VALUES (32, 2.3), (42, 2.7), (11, 1.2)";
+    }
+};
+
+struct upsert_query : public sqlite_connect::idatabase_query
+{
+    const char *sql() const override
+    {
+        return "INSERT OR IGNORE INTO tab (x, y) VALUES (32, 2.3), (42, 2.7), (11, 1.2)";
     }
 };
 
@@ -32,6 +40,7 @@ struct select_query : public sqlite_connect::idatabase_query
 
     struct record
     {
+        int64_t id;
         int x;
         double y;
     };
@@ -48,8 +57,9 @@ struct select_query : public sqlite_connect::idatabase_query
         while (stmt->step())
         {
             record r;
-            stmt->extract_column(0, r.x);
-            stmt->extract_column(1, r.y);
+            stmt->extract_column(0, r.id);
+            stmt->extract_column(1, r.x);
+            stmt->extract_column(2, r.y);
             records.push_back(r);
         }
     }
@@ -74,7 +84,7 @@ int main(void)
 
     for (auto &r : select.records)
     {
-        std::cout << "(x: " << r.x << ", y: " << r.y << ")\n";
+        std::cout << "(id: " << r.id << ", x: " << r.x << ", y: " << r.y << ")\n";
     }
 
     return 0;

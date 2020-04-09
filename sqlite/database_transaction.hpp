@@ -12,7 +12,6 @@ class database_transaction
 {
 private:
     std::weak_ptr<database_connection> m_db;
-    bool m_has_caught_exception = false;
 
     void execute_sql(const char *sql);
     void start_transaction();

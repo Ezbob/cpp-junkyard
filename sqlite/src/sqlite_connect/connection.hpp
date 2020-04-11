@@ -28,6 +28,7 @@ public:
 
     void execute_query(std::shared_ptr<iquery> query);
     void execute_query(iquery &query);
+    void execute_query(const char *query);
     bool is_open() const;
     explicit operator sqlite3 *();
     operator bool();

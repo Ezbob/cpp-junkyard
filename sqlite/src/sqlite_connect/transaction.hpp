@@ -3,7 +3,6 @@
 
 #include <memory>
 #include "connection.hpp"
-#include "sqlite3.h"
 #include <iostream>
 
 namespace sqlite_connect

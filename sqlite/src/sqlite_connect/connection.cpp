@@ -17,6 +17,23 @@ connection::~connection()
     }
 }
 
+void connection::execute_query(const char *query)
+{
+    char *err = nullptr;
+    int rc = sqlite3_exec(m_db, query, nullptr, nullptr, &err);
+
+    if (database_exception::is_error_code(rc))
+    {
+        std::string err_msg = sqlite3_errmsg(m_db);
+        if (err != nullptr)
+        {
+            err_msg += ": ";
+            err_msg += err;
+        }
+        throw database_exception(err_msg);
+    }
+}
+
 void connection::execute_query(std::shared_ptr<iquery> query)
 {
     execute_query(*query);

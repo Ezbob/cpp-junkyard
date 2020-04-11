@@ -9,9 +9,10 @@ namespace sqlite_connect
 
 struct iquery
 {
+    using statement_ptr = std::shared_ptr<prepared_statement>;
     virtual ~iquery() = default;
     virtual const char *sql(void) const = 0;
-    virtual void execute(std::shared_ptr<prepared_statement> stmt);
+    virtual void execute(statement_ptr stmt);
 };
 
 }; // namespace sqlite_connect

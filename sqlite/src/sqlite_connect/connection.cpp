@@ -1,15 +1,15 @@
 
-#include "database_connection.hpp"
+#include "connection.hpp"
 #include <iostream>
 
 using namespace sqlite_connect;
 
-database_connection::database_connection(std::string name) : m_db_name(name)
+connection::connection(std::string name) : m_db_name(name)
 {
     m_is_open = (sqlite3_open(m_db_name.c_str(), &m_db) == SQLITE_OK);
 }
 
-database_connection::~database_connection()
+connection::~connection()
 {
     if (m_is_open)
     {
@@ -17,12 +17,12 @@ database_connection::~database_connection()
     }
 }
 
-void database_connection::execute_query(std::shared_ptr<idatabase_query> query)
+void connection::execute_query(std::shared_ptr<iquery> query)
 {
     execute_query(*query);
 }
 
-void database_connection::execute_query(idatabase_query &query)
+void connection::execute_query(iquery &query)
 {
     if (!m_is_open)
     {
@@ -30,11 +30,14 @@ void database_connection::execute_query(idatabase_query &query)
     }
 
     auto prepared = std::make_shared<prepared_statement>();
-    try {
+    try
+    {
         prepared->prepare(m_db, query.sql());
 
         query.execute(prepared);
-    } catch(database_exception const &e) {
+    }
+    catch (database_exception const &e)
+    {
         std::string new_err = e.what();
         new_err += ": ";
         new_err += sqlite3_errmsg(m_db);
@@ -42,17 +45,17 @@ void database_connection::execute_query(idatabase_query &query)
     }
 }
 
-bool database_connection::is_open() const
+bool connection::is_open() const
 {
     return m_is_open;
 }
 
-database_connection::operator sqlite3 *()
+connection::operator sqlite3 *()
 {
     return m_db;
 }
 
-database_connection::operator bool()
+connection::operator bool()
 {
     return m_is_open;
 }

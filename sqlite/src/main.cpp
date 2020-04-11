@@ -5,13 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "database_exception.hpp"
-#include "prepared_statement.hpp"
-#include "idatabase_query.hpp"
-#include "database_connection.hpp"
-#include "database_transaction.hpp"
+#include "sqlite_connect/sqlite_connect.hpp"
 
-struct create_table_query : public sqlite_connect::idatabase_query
+struct create_table_query : public sqlite_connect::iquery
 {
     const char *sql() const override
     {
@@ -19,7 +15,7 @@ struct create_table_query : public sqlite_connect::idatabase_query
     }
 };
 
-struct insert_query : public sqlite_connect::idatabase_query
+struct insert_query : public sqlite_connect::iquery
 {
     const char *sql() const override
     {
@@ -27,7 +23,7 @@ struct insert_query : public sqlite_connect::idatabase_query
     }
 };
 
-struct upsert_query : public sqlite_connect::idatabase_query
+struct upsert_query : public sqlite_connect::iquery
 {
     const char *sql() const override
     {
@@ -35,7 +31,7 @@ struct upsert_query : public sqlite_connect::idatabase_query
     }
 };
 
-struct select_query : public sqlite_connect::idatabase_query
+struct select_query : public sqlite_connect::iquery
 {
 
     struct record
@@ -67,10 +63,10 @@ struct select_query : public sqlite_connect::idatabase_query
 
 int main(void)
 {
-    auto connection = std::make_shared<sqlite_connect::database_connection>();
+    auto connection = std::make_shared<sqlite_connect::connection>();
 
     {
-        sqlite_connect::database_transaction transaction(connection);
+        sqlite_connect::transaction transaction(connection);
         create_table_query create;
         insert_query insert;
 

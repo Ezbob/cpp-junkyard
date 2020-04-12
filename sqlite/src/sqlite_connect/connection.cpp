@@ -36,7 +36,7 @@ void connection::execute_query(const char *query)
 
 void connection::execute_query(std::shared_ptr<iquery> query)
 {
-    execute_query(*query);
+    this->execute_query(*query);
 }
 
 void connection::execute_query(iquery &query)
@@ -46,12 +46,18 @@ void connection::execute_query(iquery &query)
         throw database_exception("Database is not open");
     }
 
-    auto prepared = std::make_shared<prepared_statement>();
     try
     {
-        prepared->prepare(m_db, query.sql());
-
-        query.execute(prepared);
+        if (query.is_cached()) {
+            auto cached = query.cache();
+            cached->reset();
+            query.execute(cached);
+        } else {
+            auto prepared = std::make_shared<prepared_statement>();
+            prepared->prepare(m_db, query.sql());
+            query.execute(prepared);
+            query.cache(prepared);
+        }
     }
     catch (database_exception const &e)
     {
@@ -64,15 +70,15 @@ void connection::execute_query(iquery &query)
 
 bool connection::is_open() const
 {
-    return m_is_open;
+    return this->m_is_open;
 }
 
 connection::operator sqlite3 *()
 {
-    return m_db;
+    return this->m_db;
 }
 
 connection::operator bool()
 {
-    return m_is_open;
+    return this->m_is_open;
 }

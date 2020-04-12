@@ -103,11 +103,6 @@ void prepared_statement::reset()
     {
         throw database_exception(sqlite3_errstr(rc));
     }
-    rc = sqlite3_clear_bindings(m_stmt);
-    if (database_exception::is_error_code(rc))
-    {
-        throw database_exception(sqlite3_errstr(rc));
-    }
 }
 
 bool prepared_statement::has_row() const

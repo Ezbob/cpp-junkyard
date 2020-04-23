@@ -41,10 +41,9 @@ int main() {
 
     std::cout << "Sum: " << (M  + m) << '\n';
 
-    auto r = LinAlg::VecR3({2., 2., 1.});
+    auto r = LinAlg::VecR2({2., 2.});
 
-    auto A = LinAlg::MatR<3>({
-        r,
+    auto A = LinAlg::MatR<2>({
         r,
         r
     });

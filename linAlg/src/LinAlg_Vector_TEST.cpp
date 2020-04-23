@@ -13,27 +13,27 @@ TEST( vector_test, vector_initialization_with_single_scalar ) {
     auto scalarIniter = 2.;
     auto vec = LinAlg::VecR3::initWith(scalarIniter);
 
-    ASSERT_TRUE(vec[0] == scalarIniter);
-    ASSERT_TRUE(vec[1] == scalarIniter);
-    ASSERT_TRUE(vec[2] == scalarIniter);
+    ASSERT_EQ(vec[0], scalarIniter);
+    ASSERT_EQ(vec[1], scalarIniter);
+    ASSERT_EQ(vec[2], scalarIniter);
 }
 
 
 TEST( vector_test, vector_initialization_with_zeroes ) {
     auto vec = LinAlg::VecR3::zeroes();
 
-    ASSERT_TRUE(vec[0] == 0);
-    ASSERT_TRUE(vec[1] == 0);
-    ASSERT_TRUE(vec[2] == 0);
+    ASSERT_EQ(vec[0], 0);
+    ASSERT_EQ(vec[1], 0);
+    ASSERT_EQ(vec[2], 0);
 }
 
 
 TEST( vector_test, vector_initialization_with_ones ) {
     auto vec = LinAlg::VecR3::ones();
 
-    ASSERT_TRUE(vec[0] == 1);
-    ASSERT_TRUE(vec[1] == 1);
-    ASSERT_TRUE(vec[2] == 1);
+    ASSERT_EQ(vec[0], 1);
+    ASSERT_EQ(vec[1], 1);
+    ASSERT_EQ(vec[2], 1);
 }
 
 
@@ -243,12 +243,3 @@ TEST( vector_test, vector_3d_cross ) {
 
     ASSERT_EQ(result, expected);
 }
-
-TEST( vector_test, vector_3d_zeroes ) {
-
-    auto vec = LinAlg::VecR3({0., 0., 0.});
-    auto vec2 = LinAlg::VecR3::zeroes();
-
-    ASSERT_EQ(vec, vec2);
-}
-

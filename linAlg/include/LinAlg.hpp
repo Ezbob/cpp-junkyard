@@ -184,11 +184,15 @@ namespace LinAlg {
         }
 
         constexpr T *begin() const noexcept {
-            return &_data[0];
+            return _data;
         }
 
         constexpr T *end() const noexcept {
-            return &_data[Dim];
+            return _data + Dim;
+        }
+
+        constexpr std::size_t len() noexcept {
+            return Dim;
         }
 
         template<typename U, std::size_t D>
@@ -287,10 +291,20 @@ namespace LinAlg {
     // Matrix
     // ---
 
-    template<typename T, std::size_t Row, std::size_t Column = Row>
+    template<typename T, std::size_t Row, std::size_t Col>
+    using MatrixEqualsComparator_t = bool(const T(&)[Row * Col], const T(&)[Row * Col]) noexcept;
+
+    template<typename T, std::size_t Row, std::size_t Col>
+    constexpr bool DefaultMatrixEqualsComparator(const T(& vec1)[Row * Col], const T(& vec2)[Row * Col]) noexcept {
+        for (size_t i = 0; i < Row * Col; ++i)
+            if (vec1[i] != vec2[i])
+                return false;
+        return true;
+    }
+
+    template<typename T, std::size_t Row, std::size_t Column = Row , MatrixEqualsComparator_t<T, Row, Column> ComparatorFunction = DefaultMatrixEqualsComparator<T, Row, Column>>
     struct MatBase {
-        static constexpr std::size_t rows = Row;
-        static constexpr std::size_t columns = Column;
+
         T _data[Row * Column] = {0};
 
         constexpr MatBase() noexcept = default;
@@ -343,7 +357,7 @@ namespace LinAlg {
             MatBase<T, Row, Column> result;
             for (std::size_t i = 0; i < Row; ++i) {
                 for (std::size_t j = 0; j < Column; ++j) {
-                    result._data[i * Row + j] += _data[i * Row + j] - other._data[i * Row + j];
+                    result._data[i * Row + j] = _data[i * Row + j] - other._data[i * Row + j];
                 }
             }
 
@@ -372,6 +386,19 @@ namespace LinAlg {
             return result;
         }
 
+        template<std::size_t BCoL>
+        constexpr MatBase<T, Row, Column> mul(const MatBase<T, Column, BCoL> &other) const noexcept {
+            MatBase<T, Row, BCoL> result;
+            for (std::size_t i = 0; i < Row; ++i) {
+                for (std::size_t j = 0; j < BCoL; ++j) {
+                    for (std::size_t k = 0; k < Column; ++k) {
+                         result._data[i * Row + j] += _data[i * Row + k] * other._data[k * Column + j];
+                    }
+                }
+            }
+            return result;
+        }
+
         constexpr MatBase<T, Row, Column> operator +(const MatBase<T, Row, Column> &other) const noexcept {
             return add(other);
         }
@@ -390,6 +417,14 @@ namespace LinAlg {
 
         constexpr MatBase<T, Row, Column> operator *(const T &other) const noexcept {
             return mul(other);
+        }
+
+        constexpr MatBase<T, Row, Column> operator *(const MatBase<T, Row, Column> &other) const noexcept {
+            return mul(other);
+        }
+
+        constexpr bool operator ==(const MatBase<T, Row, Column> &other) const noexcept {
+            return ComparatorFunction(_data, other._data);
         }
 
         constexpr MatBase<T, Row, Column> transpose() noexcept {
@@ -413,17 +448,36 @@ namespace LinAlg {
             return result;
         }
 
-        constexpr static MatBase<T, Row, Column> zero() noexcept {
+        constexpr static MatBase<T, Row, Column> zeroes() noexcept {
             return MatBase<T, Row, Column>{};
         }
 
+        constexpr static MatBase<T, Row, Column> ones() noexcept {
+            constexpr auto result = MatBase<T, Row, Column>();
+            for ( std::size_t i = 0; i < Column * Row; ++i ) {
+                result._data[i] = 1;
+            }
+            return result;
+        }
 
         constexpr T *begin() noexcept {
-            return _data[0];
+            return _data;
         }
 
         constexpr T *end() noexcept {
-            return _data[Row * Column];
+            return _data + ( Row * Column );
+        }
+
+        constexpr std::size_t columns() {
+            return Column;
+        }
+
+        constexpr std::size_t rows() {
+            return Row;
+        }
+
+        constexpr std::size_t len() {
+            return Row * Column;
         }
 
         template<typename U, std::size_t R, std::size_t C>

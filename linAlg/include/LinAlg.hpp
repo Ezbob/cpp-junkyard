@@ -3,7 +3,6 @@
 
 #include <cmath>
 #include <ostream>
-#include <functional>
 
 namespace LinAlg {
 
@@ -232,7 +231,7 @@ namespace LinAlg {
          * Zero value here means that the two vectors are co-linear
          */
         constexpr T cross(const Vec2<T> &other) const noexcept {
-            return (x() * other.y()) - (y() * other.x());
+            return x() * other.y() - other.x() * y();
         }
     };
 
@@ -441,7 +440,7 @@ namespace LinAlg {
                 os << mat._data[i * R + j];
                 if (j < (C - 1)) os << ", ";
             }
-            if (i < (R - 1)) os << "},\n"; else os << "}";
+            if (i < (R - 1)) os << "}, "; else os << "}";
         }
 
         os << "}";

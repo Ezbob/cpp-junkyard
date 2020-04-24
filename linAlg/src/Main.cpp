@@ -1,4 +1,4 @@
-#include "LinAlg.hpp"
+#include "lin_alg.hpp"
 #include <iostream>
 
 int main() {

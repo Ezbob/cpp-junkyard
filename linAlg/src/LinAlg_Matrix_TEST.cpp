@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
-#include "linAlg.hpp"
+#include "lin_alg.hpp"
 
 
 TEST( matrix_test, square_matrix_equality_operator ) {
@@ -15,7 +15,7 @@ TEST( matrix_test, square_matrix_equality_operator ) {
 
     ASSERT_EQ(result, expected);
 }
-
+/*
 TEST( matrix_test, matrix_square_from_3d_vectors ) {
 
     auto vec = LinAlg::VecR2({4., 3.});
@@ -31,6 +31,9 @@ TEST( matrix_test, matrix_square_from_3d_vectors ) {
     ASSERT_EQ(result, expected);
 }
 
+*/
+
+/*
 TEST( matrix_test, square_subtraction_operator ) {
 
     auto mat = LinAlg::MatR<2>({
@@ -61,6 +64,7 @@ TEST( matrix_test, square_subtraction_operator ) {
 
     ASSERT_EQ(result, expected);
 }
+*/
 
 TEST( matrix_test, square_multiplication_operator ) {
 
@@ -105,3 +109,55 @@ TEST( matrix_test, square_addition_operator ) {
     ASSERT_EQ(result, expected);
 }
 
+TEST( matrix_test, nonsquare_matrix_equality_operator ) {
+
+    auto mat = LinAlg::MatR<2, 3>({
+        4., 3., 3.,
+        1., 2., 4.
+    });
+
+    auto mat2 = LinAlg::MatR<2, 3>({
+        4., 3., 3.,
+        1., 2., 4.,
+    });
+
+    ASSERT_EQ(mat, mat2);
+}
+
+
+TEST( matrix_test, nonsquare_matrix_not_equality_operator ) {
+
+    auto mat = LinAlg::MatR<2, 3>({
+        4., 3., 3.,
+        1., 2., 4.
+    });
+
+    auto mat2 = LinAlg::MatR<3, 3>({
+        4., 1., 3.,
+        1., 2., 4.,
+        4., 5., 6.,
+    });
+
+    ASSERT_NE(mat, mat2);
+}
+
+
+TEST( matrix_test, matrix_nonsquare_from_3d_vectors ) {
+
+    auto vec = LinAlg::VecR3({4., 3., 3.});
+    auto vec2 = LinAlg::VecR3({1., 2., 3.});
+
+    auto result = LinAlg::MatR<2, 3>({vec, vec2});
+
+    std::cout << result << "\n";
+
+    auto expected = LinAlg::MatR<2, 3>({
+        {4., 3., 3.},
+        {1., 2., 3.}
+    });
+
+    
+    std::cout << expected << "\n";
+
+    ASSERT_EQ(result, expected);
+}

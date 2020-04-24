@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
-#include "linAlg.hpp"
+#include "lin_alg.hpp"
 
 TEST(sample_test_case, sample_test)
 {

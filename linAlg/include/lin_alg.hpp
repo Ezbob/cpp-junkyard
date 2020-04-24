@@ -2,7 +2,7 @@
 #define HEADER_GUARD_555f3585de52793a2e4eb2d7704775f8
 
 #include <cmath>
-#include <ostream>
+#include <iostream>
 
 namespace LinAlg {
 
@@ -155,8 +155,18 @@ namespace LinAlg {
             return EqualsComparator(_data, other._data);
         }
 
+        template<std::size_t A>
+        constexpr bool operator ==(const VecBase<T, A> &other) const noexcept {
+            return false;
+        }
+
         constexpr bool operator !=(const VecBase<T, Dim> &other) const noexcept {
             return !EqualsComparator(_data, other._data);
+        }
+
+        template<std::size_t A>
+        constexpr bool operator !=(const VecBase<T, A> &other) const noexcept {
+            return true;
         }
 
         constexpr T dot(VecBase<T, Dim> &other) const noexcept {
@@ -291,20 +301,9 @@ namespace LinAlg {
     // Matrix
     // ---
 
-    template<typename T, std::size_t Row, std::size_t Col>
-    using MatrixEqualsComparator_t = bool(const T(&)[Row * Col], const T(&)[Row * Col]) noexcept;
-
-    template<typename T, std::size_t Row, std::size_t Col>
-    constexpr bool DefaultMatrixEqualsComparator(const T(& vec1)[Row * Col], const T(& vec2)[Row * Col]) noexcept {
-        for (size_t i = 0; i < Row * Col; ++i)
-            if (vec1[i] != vec2[i])
-                return false;
-        return true;
-    }
-
-    template<typename T, std::size_t Row, std::size_t Column = Row , MatrixEqualsComparator_t<T, Row, Column> ComparatorFunction = DefaultMatrixEqualsComparator<T, Row, Column>>
+    template<typename T, std::size_t Row, std::size_t Column = Row>
     struct MatBase {
-
+        
         T _data[Row * Column] = {0};
 
         constexpr MatBase() noexcept = default;
@@ -326,7 +325,7 @@ namespace LinAlg {
         }
 
         constexpr explicit MatBase(const T(&arg)[Row * Column]) noexcept {
-            for (std::size_t i = 0; i < Row * Column; ++i) {
+            for (std::size_t i = 0; i < (Row * Column); ++i) {
                 _data[i] = arg[i];
             }
         }
@@ -424,7 +423,26 @@ namespace LinAlg {
         }
 
         constexpr bool operator ==(const MatBase<T, Row, Column> &other) const noexcept {
-            return ComparatorFunction(_data, other._data);
+            for (std::size_t i = 0; i < (Row * Column); ++i) {
+                if (_data[i] != other._data[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        template<std::size_t A, std::size_t B>
+        constexpr bool operator ==(const MatBase<T, A, B> &) const noexcept {
+            return false;
+        }
+
+        constexpr bool operator !=(const MatBase<T, Row, Column> &other) const noexcept {
+            return !(*this == other);
+        }
+
+        template<std::size_t A, std::size_t B>
+        constexpr bool operator !=(const MatBase<T, A, B> &) const noexcept {
+            return true;
         }
 
         constexpr MatBase<T, Row, Column> transpose() noexcept {

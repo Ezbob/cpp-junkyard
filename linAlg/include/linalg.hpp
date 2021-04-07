@@ -52,10 +52,6 @@ namespace LinAlg {
             return _data[i];
         }
 
-        T operator[](std::size_t i) noexcept {
-            return _data[i];
-        }
-
         constexpr VecBase<T, Dim> operator +(const VecBase<T, Dim> &other) const noexcept {
             VecBase<T, Dim> result;
             for (std::size_t i = 0; i < Dim; ++i) {

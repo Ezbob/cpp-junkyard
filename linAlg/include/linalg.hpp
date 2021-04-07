@@ -1,5 +1,5 @@
-#ifndef HEADER_GUARD_555f3585de52793a2e4eb2d7704775f8
-#define HEADER_GUARD_555f3585de52793a2e4eb2d7704775f8
+#ifndef HEADER_GUARD_555f3585de52793a2e4eb2d7704775f8_linalg
+#define HEADER_GUARD_555f3585de52793a2e4eb2d7704775f8_linalg
 
 #include <cmath>
 #include <iostream>
@@ -18,7 +18,7 @@ namespace LinAlg {
         return true;
     }
 
-    template<typename T, std::size_t Dim, VectorEqualsComparator_t<T, Dim> EqualsComparator = DefaultVectorEqualsComparator<T, Dim>>
+    template<typename T, std::size_t Dim, VectorEqualsComparator_t<T, Dim> EqualsComparator = DefaultVectorEqualsComparator<T, Dim>, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
     struct VecBase {
         T _data[Dim] = {0};
 

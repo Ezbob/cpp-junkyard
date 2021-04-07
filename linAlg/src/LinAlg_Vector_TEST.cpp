@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
-#include "lin_alg.hpp"
+#include "linalg.hpp"
 
 TEST( vector_test, vector_initialization_with_single_scalar ) {
     auto scalarIniter = 2.;

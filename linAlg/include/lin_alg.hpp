@@ -56,7 +56,7 @@ namespace LinAlg {
             return _data[i];
         }
 
-        constexpr VecBase<T, Dim> add(const VecBase<T, Dim> &other) const noexcept {
+        constexpr VecBase<T, Dim> operator +(const VecBase<T, Dim> &other) const noexcept {
             VecBase<T, Dim> result;
             for (std::size_t i = 0; i < Dim; ++i) {
                 result._data[i] = _data[i] + other._data[i];
@@ -64,7 +64,7 @@ namespace LinAlg {
             return result;
         }
 
-        constexpr VecBase<T, Dim> add(const T &scalar) const noexcept {
+        constexpr VecBase<T, Dim> operator +(const T &scalar) const noexcept {
             VecBase<T, Dim> result;
             for (std::size_t i = 0; i < Dim; ++i) {
                 result._data[i] = _data[i] + scalar;
@@ -72,15 +72,7 @@ namespace LinAlg {
             return result;
         }
 
-        constexpr VecBase<T, Dim> sub(const T &scalar) const noexcept {
-            VecBase<T, Dim> result;
-            for (std::size_t i = 0; i < Dim; ++i) {
-                result._data[i] = _data[i] - scalar;
-            }
-            return result;
-        }
-
-        constexpr VecBase<T, Dim> sub(const VecBase<T, Dim> &other) const noexcept {
+        constexpr VecBase<T, Dim> operator -(const VecBase<T, Dim> &other) const noexcept {
             VecBase<T, Dim> result;
             for (std::size_t i = 0; i < Dim; ++i) {
                 result._data[i] = _data[i] - other._data[i];
@@ -88,7 +80,15 @@ namespace LinAlg {
             return result;
         }
 
-        constexpr VecBase<T, Dim> mul(const T &scalar) const noexcept {
+        constexpr VecBase<T, Dim> operator -(const T &scalar) const noexcept {
+            VecBase<T, Dim> result;
+            for (std::size_t i = 0; i < Dim; ++i) {
+                result._data[i] = _data[i] - scalar;
+            }
+            return result;
+        }
+
+        constexpr VecBase<T, Dim> operator *(const T &scalar) const noexcept {
             VecBase<T, Dim> result;
             for (std::size_t i = 0; i < Dim; ++i) {
                 result._data[i] = _data[i] * scalar;
@@ -96,7 +96,7 @@ namespace LinAlg {
             return result;
         }
 
-        constexpr VecBase<T, Dim> mul(const VecBase<T, Dim> &other) const noexcept {
+        constexpr VecBase<T, Dim> operator *(const VecBase<T, Dim> &other) const noexcept {
             VecBase<T, Dim> result;
             for (std::size_t i = 0; i < Dim; ++i) {
                 result._data[i] = _data[i] * other._data[i];
@@ -104,7 +104,7 @@ namespace LinAlg {
             return result;
         }
 
-        constexpr VecBase<T, Dim> div(const T &scalar) const noexcept {
+        constexpr VecBase<T, Dim> operator /(const T &scalar) const noexcept {
             VecBase<T, Dim> result;
             for (std::size_t i = 0; i < Dim; ++i) {
                 result._data[i] = _data[i] / scalar;
@@ -112,44 +112,12 @@ namespace LinAlg {
             return result;
         }
 
-        constexpr VecBase<T, Dim> div(const VecBase<T, Dim> &other) const noexcept {
+        constexpr VecBase<T, Dim> operator /(const VecBase<T, Dim> &other) const noexcept {
             VecBase<T, Dim> result;
             for (std::size_t i = 0; i < Dim; ++i) {
                 result._data[i] = _data[i] / other._data[i];
             }
             return result;
-        }
-
-        constexpr VecBase<T, Dim> operator +(const VecBase<T, Dim> &other) const noexcept {
-            return add(other);
-        }
-
-        constexpr VecBase<T, Dim> operator +(const T &scalar) const noexcept {
-            return add(scalar);
-        }
-
-        constexpr VecBase<T, Dim> operator -(const VecBase<T, Dim> &other) const noexcept {
-            return sub(other);
-        }
-
-        constexpr VecBase<T, Dim> operator -(const T &scalar) const noexcept {
-            return sub(scalar);
-        }
-
-        constexpr VecBase<T, Dim> operator *(const T &other) const noexcept {
-            return mul(other);
-        }
-
-        constexpr VecBase<T, Dim> operator *(const VecBase<T, Dim> &other) const noexcept {
-            return mul(other);
-        }
-
-        constexpr VecBase<T, Dim> operator /(const T &other) const noexcept {
-            return div(other);
-        }
-
-        constexpr VecBase<T, Dim> operator /(const VecBase<T, Dim> &other) const noexcept {
-            return div(other);
         }
 
         constexpr bool operator ==(const VecBase<T, Dim> &other) const noexcept {

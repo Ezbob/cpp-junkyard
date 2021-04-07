@@ -3,12 +3,6 @@
 #include "gtest/gtest.h"
 #include "lin_alg.hpp"
 
-TEST(sample_test_case, sample_test)
-{
-    EXPECT_EQ(1, 1);
-}
-
-
 TEST( vector_test, vector_initialization_with_single_scalar ) {
     auto scalarIniter = 2.;
     auto vec = LinAlg::VecR3::initWith(scalarIniter);
@@ -36,18 +30,6 @@ TEST( vector_test, vector_initialization_with_ones ) {
     ASSERT_EQ(vec[2], 1);
 }
 
-
-TEST( vector_test, vector_vector_addition ) {
-
-    auto vec = LinAlg::VecR2({2., 3.});
-    auto vec2 = LinAlg::VecR2({1., 2.});
-
-    auto result = vec.add(vec2);
-
-    ASSERT_TRUE(result[0] == 3);
-    ASSERT_TRUE(result[1] == 5);
-}
-
 TEST( vector_test, vector_vector_addition_with_operator ) {
 
     auto vec = LinAlg::VecR2({2., 3.});
@@ -58,18 +40,6 @@ TEST( vector_test, vector_vector_addition_with_operator ) {
     ASSERT_TRUE(result[0] == 3);
     ASSERT_TRUE(result[1] == 5);
 }
-
-TEST( vector_test, vector_scalar_addition ) {
-
-    auto vec = LinAlg::VecR2({2., 3.});
-    auto scalar = 3.;
-
-    auto result = vec.add(scalar);
-
-    ASSERT_TRUE(result[0] == 5);
-    ASSERT_TRUE(result[1] == 6);
-}
-
 
 TEST( vector_test, vector_scalar_addition_with_operator ) {
 
@@ -82,19 +52,6 @@ TEST( vector_test, vector_scalar_addition_with_operator ) {
     ASSERT_TRUE(result[1] == 6);
 }
 
-
-TEST( vector_test, vector_vector_subtraction ) {
-
-    auto vec = LinAlg::VecR2({2., 3.});
-    auto vec2 = LinAlg::VecR2({1., 2.});
-
-    auto result = vec.sub(vec2);
-
-    ASSERT_TRUE(result[0] == 1);
-    ASSERT_TRUE(result[1] == 1);
-}
-
-
 TEST( vector_test, vector_vector_subtraction_with_operator ) {
 
     auto vec = LinAlg::VecR2({2., 3.});
@@ -105,19 +62,6 @@ TEST( vector_test, vector_vector_subtraction_with_operator ) {
     ASSERT_TRUE(result[0] == 1);
     ASSERT_TRUE(result[1] == 1);
 }
-
-
-TEST( vector_test, vector_scalar_subtraction ) {
-
-    auto vec = LinAlg::VecR2({2., 3.});
-    auto scalar = 3.;
-
-    auto result = vec.sub(scalar);
-
-    ASSERT_TRUE(result[0] == -1.);
-    ASSERT_TRUE(result[1] == 0);
-}
-
 
 TEST( vector_test, vector_scalar_subtraction_with_operator ) {
 
@@ -130,19 +74,6 @@ TEST( vector_test, vector_scalar_subtraction_with_operator ) {
     ASSERT_TRUE(result[1] == 0);
 }
 
-
-TEST( vector_test, vector_vector_multiplication ) {
-
-    auto vec = LinAlg::VecR2({2., 3.});
-    auto vec2 = LinAlg::VecR2({1., 2.});
-
-    auto result = vec.mul(vec2);
-
-    ASSERT_TRUE(result[0] == 2);
-    ASSERT_TRUE(result[1] == 6);
-}
-
-
 TEST( vector_test, vector_vector_multiplication_with_operator ) {
 
     auto vec = LinAlg::VecR2({2., 3.});
@@ -153,19 +84,6 @@ TEST( vector_test, vector_vector_multiplication_with_operator ) {
     ASSERT_TRUE(result[0] == 2);
     ASSERT_TRUE(result[1] == 6);
 }
-
-
-TEST( vector_test, vector_scalar_multiplication ) {
-
-    auto vec = LinAlg::VecR2({2., 3.});
-    auto scalar = 2.;
-
-    auto result = vec.mul(scalar);
-
-    ASSERT_TRUE(result[0] == 4);
-    ASSERT_TRUE(result[1] == 6);
-}
-
 
 TEST( vector_test, vector_scalar_multiplication_with_operator ) {
 
@@ -178,19 +96,6 @@ TEST( vector_test, vector_scalar_multiplication_with_operator ) {
     ASSERT_TRUE(result[1] == 6);
 }
 
-
-TEST( vector_test, vector_scalar_division ) {
-
-    auto vec = LinAlg::VecR2({2., 3.});
-    auto scalar = 2.;
-
-    auto result = vec.div(scalar);
-
-    ASSERT_TRUE(result[0] == 1);
-    ASSERT_TRUE(result[1] == 1.5);
-}
-
-
 TEST(  vector_test, vector_scalar_division_with_operator ) {
 
     auto vec = LinAlg::VecR2({2., 3.});
@@ -200,17 +105,6 @@ TEST(  vector_test, vector_scalar_division_with_operator ) {
 
     ASSERT_TRUE(result[0] == 1);
     ASSERT_TRUE(result[1] == 1.5);
-}
-
-
-TEST( vector_test, vector_dot_product ) {
-
-    auto vec = LinAlg::VecR2({2., 3.});
-    auto vec2 = LinAlg::VecR2({2., 4.});
-
-    auto result = vec.dot(vec2);
-
-    ASSERT_EQ(result, 16.);
 }
 
 TEST( vector_test, vector_magnitude ) {
@@ -231,7 +125,6 @@ TEST( vector_test, vector_2d_cross ) {
     auto expected = 5;
     ASSERT_EQ(result, expected);
 }
-
 
 TEST( vector_test, vector_3d_cross ) {
 

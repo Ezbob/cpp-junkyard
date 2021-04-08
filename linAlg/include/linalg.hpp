@@ -192,15 +192,15 @@ namespace LinAlg {
 
         template<typename U = T>
         constexpr typename std::enable_if_t<Dim == 2, U> cross(const VecBase<U, Dim> &other) const noexcept {
-            return x() * other.y() - other.x() * y();
+            return x() * other.y() - y() * other.x();
         }
 
         template<typename U = T>
         constexpr typename std::enable_if_t<Dim == 3, VecBase<U, Dim>> cross(const VecBase<U, Dim> &other) const noexcept {
             return VecBase<T, Dim>({
-                  y() * other.z() - z() * other.y()
-                , z() * other.x() - x() * other.z()
-                , x() * other.y() - y() * other.x()
+                  y() * other.z() - z() * other.y(),
+                  z() * other.x() - x() * other.z(),
+                  x() * other.y() - y() * other.x()
             });
         }
 
